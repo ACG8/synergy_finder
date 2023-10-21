@@ -23,7 +23,7 @@ class Application:
         self.root.resizable(False, False)
         self.root.geometry('600x600')
         self.offers_path = tk.StringVar()
-        self.needs_path = tk.StringVar()
+        self.data_path = tk.StringVar()
 
         self.application = None
         self.unselected_items = tk.Variable(value=[])
@@ -59,46 +59,20 @@ class Application:
     def setup_load_panel(self):
         frame = ttk.Frame(self.root,relief=tk.RAISED, borderwidth=1)
         frame.pack(fill=tk.BOTH, expand=False)
-        
-        needs_frame = ttk.Frame(frame)
-        needs_frame.pack(expand=True)
-
-        needs_label = ttk.Label(needs_frame, textvariable = self.needs_path)
-        needs_label.pack(side=tk.LEFT, fill=tk.X, expand=True)
-
-        self.needs_button = ttk.Button(
-            needs_frame,
-            text="Choose Needs CSV File",
-            command=lambda: self.needs_path.set(select_file("Select needs file")))
-        self.needs_button.pack(side=tk.RIGHT, expand=False)
-
-        offers_frame = ttk.Frame(frame)
-        offers_frame.pack(expand=True)
-
-        offers_label = ttk.Label(offers_frame, textvariable = self.offers_path)
-        offers_label.pack(side=tk.LEFT, fill=tk.X, expand=True)
-
-        offers_button = ttk.Button(
-            offers_frame,
-            text="Choose Offers CSV File",
-            command=lambda: self.offers_path.set(select_file("Select offers file")))
-        offers_button.pack(side=tk.RIGHT, expand=False)
 
         def load_application():
-            if not (self.offers_path.get() and self.needs_path.get()):
+            path = select_file("Select data file")
+            if not path:
                 return
             frame.pack_forget()
-            self.application = application.Application(
-                offers_path=self.offers_path.get(),
-                needs_path=self.needs_path.get(),)
+            self.application = application.Application(path)
             self.setup_selection_lists()
 
-        load_app_button = ttk.Button(
+        path_button = ttk.Button(
             frame,
             text="Load Data",
             command=load_application)
-        load_app_button.pack(side=tk.BOTTOM, expand=True)
-            
+        path_button.pack(fill=tk.BOTH, expand=True)
         
     def setup_selection_lists(self):
 
@@ -163,15 +137,6 @@ class Application:
         self.selected_items.set(selected_list)
 
         self.right_frame.configure(text = f"Selected ({recommender.score_selection(self.application.selected)} synergy points)")
-
-    
-    def load_needs(self):
-        path = select_file("Select needs file")
-        self.item_list = item.load_csv_needs(path, self.item_list)
-        self.unselected_items = self.item_list
-        self.update_recommendation_rankings()
-        self.update_selection_rankings()
-        self.needs_button.pack_forget()
 
     def run(self):
         self.root.mainloop()

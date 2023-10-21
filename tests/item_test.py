@@ -15,51 +15,31 @@ class TestItemClass(unittest.TestCase):
         self.assertNotEqual(item_a, item_c)
         self.assertNotEqual(item_b, item_c)
 
-
 class TestCsvImports(unittest.TestCase):
-    
-    def test_load_csv_offers_should_work(self):
-        item_list = []
-        item.load_csv_offers("test_csv_offers.csv", item_list)
-        fire = item.Item("fire")
-        water = item.Item("water")
-        self.assertIn(fire, item_list)
-        self.assertIn(water, item_list)
-        for thing in item_list:
-            if thing == fire:
-                self.assertEqual(thing.offers, ["heat", "smoke"])
-            if thing == water:
-                self.assertEqual(thing.offers, ["moisture"])
 
-    def test_load_csv_needs_should_work(self):
-        item_list = []
-        item.load_csv_needs("test_csv_needs.csv", item_list)
-        fire = item.Item("fire")
-        water = item.Item("water")
-        self.assertIn(fire, item_list)
-        self.assertIn(water, item_list)
-        for thing in item_list:
-            if thing == fire:
-                self.assertEqual(thing.needs, ["oxygen", "fuel"])
-            if thing == water:
-                self.assertEqual(thing.needs, ["cool"])
-
-    def test_load_csv_needs_and_offers_should_work(self):
-        item_list = []
-        item.load_csv_needs("test_csv_needs.csv", item_list)
-        item.load_csv_offers("test_csv_offers.csv", item_list)        
-        self.assertEqual(len(item_list), 2)
-        fire = item.Item("fire")
-        water = item.Item("water")
-        self.assertIn(fire, item_list)
-        self.assertIn(water, item_list)
-        for thing in item_list:
-            if thing == fire:
-                self.assertEqual(thing.offers, ["heat", "smoke"])
-                self.assertEqual(thing.needs, ["oxygen", "fuel"])
-            if thing == water:
-                self.assertEqual(thing.offers, ["moisture"])
-                self.assertEqual(thing.needs, ["cool"])
+    def test_load_item_list_should_work(self):
+        item_list = item.load_item_list("test_data.csv")
+        self.assertIn(item.Item("fire"), item_list)
+        self.assertIn(item.Item("water"), item_list)
+        self.assertIn(item.Item("air"), item_list)
+        self.assertIn(item.Item("earth"), item_list)
+        for entry in item_list:
+            if entry.name == "fire":
+                self.assertEqual(entry.offers, ["heat", "smoke"])
+                self.assertEqual(entry.needs, ["oxygen", "fuel"])
+                self.assertEqual(entry.tags, ["reaction"])
+            if entry.name == "water":
+                self.assertEqual(entry.offers, ["moisture"])
+                self.assertEqual(entry.needs, ["cool"])
+                self.assertEqual(entry.tags, ["fluid"])
+            if entry.name == "air":
+                self.assertEqual(entry.offers, ["oxygen"])
+                self.assertEqual(entry.needs, [])
+                self.assertEqual(entry.tags, ["fluid"])
+            if entry.name == "earth":
+                self.assertEqual(entry.offers, ["fuel"])
+                self.assertEqual(entry.needs, ["smoke", "moisture", "oxygen"])
+                self.assertEqual(entry.tags, ["solid"])
 
 if __name__ == "__main__":
     unittest.main()

@@ -15,19 +15,13 @@ class TestSorting(unittest.TestCase):
 # Earth: -smoke(+1), +fuel(+1), -moisture(+1), -oxygen(+1)
 
     def test_sort_unselected(self):
-
-        app = application.Application(
-            needs_path="test_csv_needs.csv",
-            offers_path="test_csv_offers.csv",)
-
+        app = application.Application("test_data.csv")
         app.select(0)
         app.sort_unselected()
         self.assertEqual(app.unselected, [Item("earth"), Item("air"), Item("water")])
 
     def test_sort_selected(self):
-        app = application.Application(
-            needs_path="test_csv_needs.csv",
-            offers_path="test_csv_offers.csv",)
+        app = application.Application("test_data.csv")
         app.select(0)
         app.select(0)
         app.select(0)

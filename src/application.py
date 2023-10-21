@@ -3,13 +3,8 @@ import recommender
 
 class Application:
 
-    def __init__(self, needs_path=None, offers_path=None):
-        self.unselected = []
-        assert(needs_path is not None)
-        assert(offers_path is not None)
-        item.load_csv_offers(offers_path, self.unselected)
-        item.load_csv_needs(needs_path, self.unselected)
-        
+    def __init__(self, data_path):
+        self.unselected = item.load_item_list(data_path)
         self.selected = []
 
     def sort_unselected(self):

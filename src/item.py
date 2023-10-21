@@ -1,39 +1,21 @@
 import csv
 
 
-def load_csv_offers(path, item_list):
-    "Updates input item list by adding offers from csv file"
+def load_item_list(path):
+    item_list = []
     with open(path, newline='') as csvfile:
         reader = csv.reader(csvfile, delimiter=",")
         for row in reader:
             name = row[0]
-            offers = [x for x in row[1:] if x != ""]
-            is_modified = False
-            for item in item_list:
-                if item.name == name:
-                    is_modified = True
-                    item.offers = offers
-                    break
-            if not is_modified:
-                item_list.append(Item(name).with_offers(offers))
-
-
-def load_csv_needs(path, item_list):
-    "Updates input item list by adding needs from csv file"
-    with open(path, newline='') as csvfile:
-        reader = csv.reader(csvfile, delimiter=",")
-        for row in reader:
-            name = row[0]
-            needs = [x for x in row[1:] if x != ""]
-            is_modified = False
-            for item in item_list:
-                if item.name == name:
-                    is_modified = True
-                    item.needs = needs
-                    break
-            if not is_modified:
-                item_list.append(Item(name).with_needs(needs))
-
+            attributes = [x for x in row[1:] if x != ""]
+            offers = [a[1:] for a in attributes if a.startswith("+")]
+            needs = [a[1:] for a in attributes if a.startswith("-")]
+            tags = [a for a in attributes if (not a.startswith("+")) and (not a.startswith("-"))]
+            item_list.append(Item(name)\
+                             .with_offers(offers)\
+                             .with_needs(needs)\
+                             .with_tags(tags))
+    return item_list
 
 class Item:
     def __init__(self, name):
