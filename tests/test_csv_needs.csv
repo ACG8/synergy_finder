@@ -1,2 +1,4 @@
-fire,oxygen,fuel
-water,cool,
+fire,oxygen,fuel,
+water,cool,,
+air,,,
+earth,smoke,moisture,oxygen

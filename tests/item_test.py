@@ -15,13 +15,12 @@ class TestItemClass(unittest.TestCase):
         self.assertNotEqual(item_a, item_c)
         self.assertNotEqual(item_b, item_c)
 
-class
-
 
 class TestCsvImports(unittest.TestCase):
     
     def test_load_csv_offers_should_work(self):
-        item_list = item.load_csv_offers("test_csv_offers.csv")
+        item_list = []
+        item.load_csv_offers("test_csv_offers.csv", item_list)
         fire = item.Item("fire")
         water = item.Item("water")
         self.assertIn(fire, item_list)
@@ -33,7 +32,8 @@ class TestCsvImports(unittest.TestCase):
                 self.assertEqual(thing.offers, ["moisture"])
 
     def test_load_csv_needs_should_work(self):
-        item_list = item.load_csv_needs("test_csv_needs.csv")
+        item_list = []
+        item.load_csv_needs("test_csv_needs.csv", item_list)
         fire = item.Item("fire")
         water = item.Item("water")
         self.assertIn(fire, item_list)
@@ -45,10 +45,9 @@ class TestCsvImports(unittest.TestCase):
                 self.assertEqual(thing.needs, ["cool"])
 
     def test_load_csv_needs_and_offers_should_work(self):
-        item_list = item.load_csv_offers(
-            "test_csv_offers.csv",
-            item.load_csv_needs("test_csv_needs.csv"))
-                        
+        item_list = []
+        item.load_csv_needs("test_csv_needs.csv", item_list)
+        item.load_csv_offers("test_csv_offers.csv", item_list)        
         self.assertEqual(len(item_list), 2)
         fire = item.Item("fire")
         water = item.Item("water")

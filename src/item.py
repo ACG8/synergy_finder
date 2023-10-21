@@ -1,7 +1,7 @@
 import csv
 
 
-def load_csv_offers(path, item_list=[]):
+def load_csv_offers(path, item_list):
     "Updates input item list by adding offers from csv file"
     with open(path, newline='') as csvfile:
         reader = csv.reader(csvfile, delimiter=",")
@@ -16,10 +16,9 @@ def load_csv_offers(path, item_list=[]):
                     break
             if not is_modified:
                 item_list.append(Item(name).with_offers(offers))
-    return item_list
 
 
-def load_csv_needs(path, item_list=[]):
+def load_csv_needs(path, item_list):
     "Updates input item list by adding needs from csv file"
     with open(path, newline='') as csvfile:
         reader = csv.reader(csvfile, delimiter=",")
@@ -34,7 +33,6 @@ def load_csv_needs(path, item_list=[]):
                     break
             if not is_modified:
                 item_list.append(Item(name).with_needs(needs))
-    return item_list
 
 
 class Item:
