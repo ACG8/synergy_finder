@@ -120,6 +120,31 @@ class Application:
         self.selected_listbox.pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
         self.selected_listbox.bind("<<ListboxSelect>>", unselected_item)
 
+        filter_frame = ttk.LabelFrame(
+            self.root,
+            text="Filter by Tag",
+            relief=tk.RAISED,
+            borderwidth=1)
+        filter_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        filter_tags = tk.Variable(value=[])
+        filter_tags.set(list(self.application.get_tags()))
+
+        def resolve_filter(_event):
+            selection = filter_listbox.curselection()
+            tags = [filter_tags.get()[i] for i in selection]
+            self.application.filter(tags)
+            self.update_rankings()
+
+        filter_listbox = tk.Listbox(
+            filter_frame,
+            height=30,
+            listvariable=filter_tags,
+            selectmode=tk.MULTIPLE)
+        filter_listbox.configure(exportselection=False)  # Prevents losing selection when clicking elsewhere
+        filter_listbox.pack(fill=tk.BOTH, expand=True)
+        filter_listbox.bind("<<ListboxSelect>>", resolve_filter)
+
         self.update_rankings()
 
     def update_rankings(self):
