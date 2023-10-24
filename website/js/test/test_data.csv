@@ -1,0 +1,4 @@
+fire,reaction,-oxygen,-fuel,+heat,+smoke
+water,fluid,-cool,+moisture,,
+air,fluid,+oxygen,,,
+earth,solid,-smoke,-moisture,-oxygen,+fuel
