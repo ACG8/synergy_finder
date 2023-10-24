@@ -14,7 +14,8 @@ import Element.Font as Font
 import Element.Input as Input
 
 import Item exposing (..)
-
+import Scorer exposing (..)
+import String.Format as Format
 
 -- MAIN
 
@@ -81,13 +82,13 @@ hideItem item app =
 unselectItem : Item -> App -> App
 unselectItem item app =
   clearItem item app
-  |> (\old -> { old | unselected = item :: old.unselected})
+  |> (\old -> { old | unselected = Scorer.sortByMargin (item :: old.unselected) old.selected})
 
 
 selectItem : Item -> App -> App
 selectItem item app =
   clearItem item app
-  |> (\old -> { old | selected = item :: old.selected})
+  |> (\old -> { old | selected = Scorer.sortByRemoval (item :: old.selected)})
 
 
 
@@ -120,28 +121,114 @@ update msg model =
           )
 
 
--- VIEW
-
+-- ELEMENTS
 blue = Element.rgb255 238 238 238
 purple = Element.rgb255 238 238 100
 
+loadCsvButton
+  = Input.button
+    [ Background.color blue
+    , Element.focused [Background.color purple]
+    , centerX
+    , centerY
+    , padding 30
+    ]
+    { onPress = Just CsvRequested
+    , label = text "Load CSV"
+    }
 
-itemListPanel : String -> List Item -> (Item -> App -> App) ->  Element Msg
-itemListPanel title item_list click_method =
+
+tableItemElement : Item -> (Item -> App -> App) -> Element Msg
+tableItemElement item click_method =
+  Input.button
+    [ padding 5
+    , width fill
+    ]
+
+    { onPress = Just (Execute (click_method item))
+    , label = text item.name
+    }
+
+
+tableScoreElement : Item -> App -> Element Msg
+tableScoreElement item app =
+  el
+    [ padding 5
+    , alignRight
+    ]
+    <| text (String.fromInt <| Scorer.scoreRemoval item app.selected)
+
+
+tableAttr =
+  [ height fill
+  , width <| fillPortion 1
+  , Background.color <| rgb255 92 99 118
+  , Font.color <| rgb255 255 255 255
+  , Border.width 5
+  , padding 10
+  ]
+
+
+unselectedItemTable : App -> Element Msg
+unselectedItemTable app =
+  table
+    tableAttr
+    { data = app.unselected
+    , columns =
+      [ { header = text "Unselected"
+        , width = fillPortion 3
+        , view = \item -> tableItemElement item selectItem
+        }
+      , { header = text "Synergy"
+        , width = fillPortion 1
+        , view = \item -> tableScoreElement item app
+        }
+
+      ]
+    }
+
+
+selectedItemTable : App -> Element Msg
+selectedItemTable app =
+  table
+    tableAttr
+    { data = app.selected
+    , columns =
+      [ { header = text "Selected"
+        , width = fillPortion 3
+        , view = \item -> tableItemElement item unselectItem
+        }
+      , { header =
+          "Synergy ({{ score }})"
+          |> Format.namedValue "score"
+            (String.fromInt <| Scorer.scoreList app.selected)
+          |> text
+        , width = fillPortion 1
+        , view = \item -> tableScoreElement item app
+        }
+
+      ]
+    }
+
+
+-- VIEW
+
+
+
+
+itemListPanel : String -> List Item -> (Item -> App -> App) -> App ->  Element Msg
+itemListPanel title item_list click_method app =
   let
     activeAttrs =
       [ Background.color <| rgb255 117 179 201, Font.bold ]
 
     attrs =
-      [ paddingXY 15 5, width fill ]
+      [ paddingXY 15 5
+      , spacing 5
+      , Border.width 1
+      , width fill
+      ]
 
-    activeEl item =
-      el attrs
-      <| Input.button
-          [ padding 5 ]
-          { onPress = Just (Execute (click_method item))
-          , label = text item.name
-          }
   in
   table
     [ height fill
@@ -149,15 +236,20 @@ itemListPanel title item_list click_method =
     , Background.color <| rgb255 92 99 118
     , Font.color <| rgb255 255 255 255
     , Border.width 5
-    , padding 5
+    , padding 10
     ]
     <|
       { data = item_list
       , columns =
         [ { header = text title
-          , width = fillPortion 1
-          , view = \item -> activeEl item
+          , width = fillPortion 3
+          , view = \item -> tableItemElement item click_method
           }
+        , { header = text "Synergy"
+          , width = fillPortion 1
+          , view = \item -> tableScoreElement item app
+          }
+
         ]
       }
 
@@ -166,23 +258,12 @@ view : Model -> Html Msg
 view model =
   case model of
     Nothing ->
-      layout [] <|
-        Input.button
-          [ Background.color blue
-          , Element.focused [Background.color purple]
-          , centerX
-          , centerY
-          , padding 30
-          ]
-          { onPress = Just CsvRequested
-          , label = text "Load CSV"
-          }
-
-    Just content ->
+      layout [] <| loadCsvButton
+    Just app ->
       layout [] <|
         row [ height fill, width fill ]
-            [ itemListPanel "Unselected" content.unselected selectItem
-            , itemListPanel "Selected" content.selected unselectItem
+            [ unselectedItemTable app
+            , selectedItemTable app
             ]
 
 
