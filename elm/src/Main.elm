@@ -30,13 +30,13 @@ main =
 
 -- MODEL
 
+type alias App =
+  { hidden : List Item
+  , unselected : List Item
+  , selected : List Item
+  }
 
-type alias Model =
-  Maybe
-    { hidden : List Item
-    , unselected : List Item
-    , selected : List Item
-    }
+type alias Model = Maybe App
 
 
 toModel : String -> Model
@@ -61,6 +61,34 @@ type Msg
   = CsvRequested
   | CsvSelected File
   | CsvLoaded String
+  | Execute (App -> App)
+
+
+clearItem : Item -> App -> App
+clearItem item app =
+  { hidden = List.filter (\x -> x /= item) app.hidden
+  , unselected = List.filter (\x -> x /= item) app.unselected
+  , selected = List.filter (\x -> x /= item) app.selected
+  }
+
+
+hideItem : Item -> App -> App
+hideItem item app =
+  clearItem item app
+  |> (\old -> { old | hidden = item :: old.hidden})
+
+
+unselectItem : Item -> App -> App
+unselectItem item app =
+  clearItem item app
+  |> (\old -> { old | unselected = item :: old.unselected})
+
+
+selectItem : Item -> App -> App
+selectItem item app =
+  clearItem item app
+  |> (\old -> { old | selected = item :: old.selected})
+
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -81,6 +109,16 @@ update msg model =
       , Cmd.none
       )
 
+    Execute click_method ->
+      case model of
+        Nothing ->
+          (Nothing, Cmd.none)
+
+        Just app ->
+          ( Just (click_method app)
+          , Cmd.none
+          )
+
 
 -- VIEW
 
@@ -88,8 +126,8 @@ blue = Element.rgb255 238 238 238
 purple = Element.rgb255 238 238 100
 
 
-itemListPanel : String -> List Item -> Element Msg
-itemListPanel title item_list =
+itemListPanel : String -> List Item -> (Item -> App -> App) ->  Element Msg
+itemListPanel title item_list click_method =
   let
     activeAttrs =
       [ Background.color <| rgb255 117 179 201, Font.bold ]
@@ -101,7 +139,7 @@ itemListPanel title item_list =
       el attrs
       <| Input.button
           [ padding 5 ]
-          { onPress = Nothing
+          { onPress = Just (Execute (click_method item))
           , label = text item.name
           }
   in
@@ -143,8 +181,8 @@ view model =
     Just content ->
       layout [] <|
         row [ height fill, width fill ]
-            [ itemListPanel "Unselected" content.unselected
-            , itemListPanel "Selected" content.selected
+            [ itemListPanel "Unselected" content.unselected selectItem
+            , itemListPanel "Selected" content.selected unselectItem
             ]
 
 

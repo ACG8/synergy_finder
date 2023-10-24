@@ -14,6 +14,7 @@ toItemList csv =
   csv
     |> String.lines
     |> List.filterMap toItem
+    |> List.filter (\item -> item.name /= "")
 
 
 toItem : String -> Maybe Item
