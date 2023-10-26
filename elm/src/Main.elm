@@ -82,13 +82,13 @@ hideItem item app =
 unselectItem : Item -> App -> App
 unselectItem item app =
   clearItem item app
-  |> (\old -> { old | unselected = Scorer.sortByMargin (item :: old.unselected) old.selected})
+  |> (\old -> { old | unselected = item :: old.unselected })
 
 
 selectItem : Item -> App -> App
 selectItem item app =
   clearItem item app
-  |> (\old -> { old | selected = Scorer.sortByRemoval (item :: old.selected)})
+  |> (\old -> { old | selected = item :: old.selected })
 
 
 
@@ -122,16 +122,28 @@ update msg model =
 
 
 -- ELEMENTS
-blue = Element.rgb255 238 238 238
-purple = Element.rgb255 238 238 100
+
+color =
+    { blue = rgb255 0x72 0x9F 0xCF
+    , darkCharcoal = rgb255 0x2E 0x34 0x36
+    , green = rgb255 0x20 0xBF 0x55
+    , lightBlue = rgb255 0xC5 0xE8 0xF7
+    , lightGrey = rgb255 0xE0 0xE0 0xE0
+    , orange = rgb255 0xF2 0x64 0x19
+    , red = rgb255 0xAA 0x00 0x00
+    , white = rgb255 0xFF 0xFF 0xFF
+    }
 
 loadCsvButton
   = Input.button
-    [ Background.color blue
-    , Element.focused [Background.color purple]
+    [ Background.color color.blue
+    , Element.focused [Background.color color.orange]
     , centerX
     , centerY
     , padding 30
+    , Border.width 2
+    , Border.rounded 6
+    , Border.color color.blue
     ]
     { onPress = Just CsvRequested
     , label = text "Load CSV"
@@ -144,7 +156,6 @@ tableItemElement item click_method =
     [ padding 5
     , width fill
     ]
-
     { onPress = Just (Execute (click_method item))
     , label = text item.name
     }
@@ -158,100 +169,94 @@ tableScoreElement item app =
     ]
     <| text (String.fromInt <| Scorer.scoreRemoval item app.selected)
 
+tableBoxAttr =
+  [ width fill
+  , height <| px 600
+  , Border.width 2
+  , Border.rounded 6
+  , Border.color color.blue
+  ]
 
 tableAttr =
   [ height fill
   , width <| fillPortion 1
-  , Background.color <| rgb255 92 99 118
-  , Font.color <| rgb255 255 255 255
+  , Background.color <| color.lightBlue
+  , Font.color <| color.darkCharcoal
   , Border.width 5
   , padding 10
+  , scrollbarY
+  ]
+
+tableHeaderAttr =
+  [ Font.bold
+  , Font.color color.green
+  , Border.widthEach { bottom = 2, top = 0, left = 0, right = 0 }
+  , Border.color color.blue
   ]
 
 
 unselectedItemTable : App -> Element Msg
 unselectedItemTable app =
-  table
-    tableAttr
-    { data = app.unselected
-    , columns =
-      [ { header = text "Unselected"
-        , width = fillPortion 3
-        , view = \item -> tableItemElement item selectItem
-        }
-      , { header = text "Synergy"
-        , width = fillPortion 1
-        , view = \item -> tableScoreElement item app
-        }
-
-      ]
-    }
-
-
-selectedItemTable : App -> Element Msg
-selectedItemTable app =
-  table
-    tableAttr
-    { data = app.selected
-    , columns =
-      [ { header = text "Selected"
-        , width = fillPortion 3
-        , view = \item -> tableItemElement item unselectItem
-        }
-      , { header =
-          "Synergy ({{ score }})"
-          |> Format.namedValue "score"
-            (String.fromInt <| Scorer.scoreList app.selected)
-          |> text
-        , width = fillPortion 1
-        , view = \item -> tableScoreElement item app
-        }
-
-      ]
-    }
-
-
--- VIEW
-
-
-
-
-itemListPanel : String -> List Item -> (Item -> App -> App) -> App ->  Element Msg
-itemListPanel title item_list click_method app =
-  let
-    activeAttrs =
-      [ Background.color <| rgb255 117 179 201, Font.bold ]
-
-    attrs =
-      [ paddingXY 15 5
-      , spacing 5
-      , Border.width 1
-      , width fill
-      ]
-
-  in
-  table
-    [ height fill
-    , width <| fillPortion 1
-    , Background.color <| rgb255 92 99 118
-    , Font.color <| rgb255 255 255 255
-    , Border.width 5
-    , padding 10
-    ]
-    <|
-      { data = item_list
+  column tableBoxAttr
+    [ row [ width fill ] <|
+      [ el (( width <| fillPortion 3 ) :: tableHeaderAttr ) <| text "Unselected"
+      , el (( width <| fillPortion 1 ) :: tableHeaderAttr ) <| text "Synergy" ]
+    , table tableAttr
+      { data = Scorer.sortByMargin app.unselected app.selected
       , columns =
-        [ { header = text title
+        [ { header = none
           , width = fillPortion 3
-          , view = \item -> tableItemElement item click_method
+          , view = \item -> tableItemElement item selectItem
           }
-        , { header = text "Synergy"
+        , { header = none
           , width = fillPortion 1
           , view = \item -> tableScoreElement item app
           }
 
         ]
       }
+    ]
+
+
+selectedItemTable : App -> Element Msg
+selectedItemTable app =
+  column tableBoxAttr
+    [ row [ width fill ] <|
+      [ el (( width <| fillPortion 3 ) :: tableHeaderAttr ) <| text "Selected"
+      , el (( width <| fillPortion 1 ) :: tableHeaderAttr ) <|
+        ("Synergy ({{ score }})"
+                |> Format.namedValue "score"
+                  (String.fromInt <| Scorer.scoreList app.selected)
+                |> text )
+      ]
+    , table tableAttr
+      { data = Scorer.sortByRemoval app.selected
+      , columns =
+        [ { header = none
+          , width = fillPortion 3
+          , view = \item -> tableItemElement item unselectItem
+          }
+        , { header = none
+          , width = fillPortion 1
+          , view = \item -> tableScoreElement item app
+          }
+
+        ]
+      }
+    ]
+
+itemTables : App -> Element Msg
+itemTables app =
+  row
+    [ height <| fillPortion 2
+    , width fill
+    ]
+    [ unselectedItemTable app
+    , selectedItemTable app
+    ]
+
+
+-- VIEW
 
 
 view : Model -> Html Msg
@@ -260,11 +265,12 @@ view model =
     Nothing ->
       layout [] <| loadCsvButton
     Just app ->
-      layout [] <|
-        row [ height fill, width fill ]
-            [ unselectedItemTable app
-            , selectedItemTable app
-            ]
+      layout [ width fill, height fill ]
+        <| column
+          [ width fill, height fill, padding 10, spacing 10 ]
+          [ itemTables app
+          , el [width fill, height fill] <| text "foo"
+          ]
 
 
 -- SUBSCRIPTIONS

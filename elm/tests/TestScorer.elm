@@ -7,31 +7,51 @@ import Item exposing (..)
 import Scorer exposing (..)
 
 
-testFire = "fire,reaction,-oxygen,-fuel,-heat,+heat,+smoke"
-testWater = "water,fluid,-cool,+moisture"
-testAir = "air,fluid,+oxygen"
-testEarth = "earth,solid,-smoke,-moisture,-oxygen,+fuel"
-testItemList = [Item.toItem testFire, Item.toItem testWater, Item.toItem testAir, Item.toItem testEarth]
+testFire =
+    { name = "fire"
+    , tags = ["reaction"]
+    , needs = ["oxygen", "fuel", "heat"]
+    , offers = ["heat", "smoke"]
+    }
+testWater =
+    { name = "water"
+    , tags = ["fluid"]
+    , needs = ["cool"]
+    , offers = ["moisture"]
+    }
+testAir =
+    { name = "air"
+    , tags = ["fluid"]
+    , needs = []
+    , offers = ["oxygen"]
+    }
+testEarth =
+    { name = "earth"
+    , tags = ["solid"]
+    , needs = ["smoke", "moisture", "oxygen"]
+    , offers = ["fuel"]
+    }
+testItemList = [testFire, testWater, testAir, testEarth]
 
 
 sortByMargin =
     test "sortByMargin sorts items in descending order by score margin against another list of items" <|
         \_ ->
-            Scorer.sortByMargin [Item.toItem testFire, Item.toItem testWater, Item.toItem testAir] testItemList
-            |> Expect.equal [Item.toItem testFire, Item.toItem testAir, Item.toItem testWater]
+            Scorer.sortByMargin [testFire, testWater, testAir] testItemList
+            |> Expect.equal [testFire, testAir, testWater]
 
 
 sortByRemoval =
     test "sortByRemoval sorts items in ascending order by score margin against the list they come from" <|
         \_ ->
             Scorer.sortByRemoval testItemList
-            |> Expect.equal [Item.toItem testWater, Item.toItem testAir, Item.toItem testFire, Item.toItem testEarth]
+            |> Expect.equal [testWater, testAir, testFire, testEarth]
 
 
 getSynergy =
     test "getSynergy should return product of items" <|
         \_ ->
-            Scorer.getSynergy (Item.toItem testFire) (Item.toItem testEarth)
+            Scorer.getSynergy testFire testEarth
             |> Expect.equal 2
 
 
@@ -39,7 +59,7 @@ scoreMargin =
     test "scoreMargin should add up synergies" <|
         \_ ->
             testItemList
-            |> Scorer.scoreMargin (Item.toItem testFire)
+            |> Scorer.scoreMargin testFire
             |> Expect.equal 5
 
 
@@ -47,7 +67,7 @@ scoreRemoval =
     test "scoreRemoval should not synergize item with itself" <|
         \_ ->
             testItemList
-            |> Scorer.scoreRemoval (Item.toItem testFire)
+            |> Scorer.scoreRemoval testFire
             |> Expect.equal 3
 
 

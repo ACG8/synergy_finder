@@ -2779,210 +2779,23 @@ var $elm_explorations$test$Test$test = F2(
 						]);
 				}));
 	});
-var $author$project$TestScorer$testEarth = 'earth,solid,-smoke,-moisture,-oxygen,+fuel';
-var $author$project$TestScorer$testFire = 'fire,reaction,-oxygen,-fuel,-heat,+heat,+smoke';
-var $elm$core$String$length = _String_length;
-var $elm$core$Basics$lt = _Utils_lt;
-var $elm$core$String$slice = _String_slice;
-var $elm$core$String$dropLeft = F2(
-	function (n, string) {
-		return (n < 1) ? string : A3(
-			$elm$core$String$slice,
-			n,
-			$elm$core$String$length(string),
-			string);
-	});
-var $elm$core$List$foldl = F3(
-	function (func, acc, list) {
-		foldl:
-		while (true) {
-			if (!list.b) {
-				return acc;
-			} else {
-				var x = list.a;
-				var xs = list.b;
-				var $temp$func = func,
-					$temp$acc = A2(func, x, acc),
-					$temp$list = xs;
-				func = $temp$func;
-				acc = $temp$acc;
-				list = $temp$list;
-				continue foldl;
-			}
-		}
-	});
-var $elm$core$Basics$gt = _Utils_gt;
-var $elm$core$List$reverse = function (list) {
-	return A3($elm$core$List$foldl, $elm$core$List$cons, _List_Nil, list);
+var $author$project$TestScorer$testEarth = {
+	name: 'earth',
+	needs: _List_fromArray(
+		['smoke', 'moisture', 'oxygen']),
+	offers: _List_fromArray(
+		['fuel']),
+	tags: _List_fromArray(
+		['solid'])
 };
-var $elm$core$List$foldrHelper = F4(
-	function (fn, acc, ctr, ls) {
-		if (!ls.b) {
-			return acc;
-		} else {
-			var a = ls.a;
-			var r1 = ls.b;
-			if (!r1.b) {
-				return A2(fn, a, acc);
-			} else {
-				var b = r1.a;
-				var r2 = r1.b;
-				if (!r2.b) {
-					return A2(
-						fn,
-						a,
-						A2(fn, b, acc));
-				} else {
-					var c = r2.a;
-					var r3 = r2.b;
-					if (!r3.b) {
-						return A2(
-							fn,
-							a,
-							A2(
-								fn,
-								b,
-								A2(fn, c, acc)));
-					} else {
-						var d = r3.a;
-						var r4 = r3.b;
-						var res = (ctr > 500) ? A3(
-							$elm$core$List$foldl,
-							fn,
-							acc,
-							$elm$core$List$reverse(r4)) : A4($elm$core$List$foldrHelper, fn, acc, ctr + 1, r4);
-						return A2(
-							fn,
-							a,
-							A2(
-								fn,
-								b,
-								A2(
-									fn,
-									c,
-									A2(fn, d, res))));
-					}
-				}
-			}
-		}
-	});
-var $elm$core$List$foldr = F3(
-	function (fn, acc, ls) {
-		return A4($elm$core$List$foldrHelper, fn, acc, 0, ls);
-	});
-var $elm$core$List$filter = F2(
-	function (isGood, list) {
-		return A3(
-			$elm$core$List$foldr,
-			F2(
-				function (x, xs) {
-					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
-				}),
-			_List_Nil,
-			list);
-	});
-var $elm$core$List$map = F2(
-	function (f, xs) {
-		return A3(
-			$elm$core$List$foldr,
-			F2(
-				function (x, acc) {
-					return A2(
-						$elm$core$List$cons,
-						f(x),
-						acc);
-				}),
-			_List_Nil,
-			xs);
-	});
-var $elm$core$String$startsWith = _String_startsWith;
-var $elm$core$List$tail = function (list) {
-	if (list.b) {
-		var x = list.a;
-		var xs = list.b;
-		return $elm$core$Maybe$Just(xs);
-	} else {
-		return $elm$core$Maybe$Nothing;
-	}
-};
-var $author$project$Item$getNeeds = function (csv_list) {
-	var _v0 = $elm$core$List$tail(csv_list);
-	if (_v0.$ === 'Just') {
-		var contents = _v0.a;
-		return A2(
-			$elm$core$List$map,
-			$elm$core$String$dropLeft(1),
-			A2(
-				$elm$core$List$filter,
-				$elm$core$String$startsWith('-'),
-				contents));
-	} else {
-		return _List_Nil;
-	}
-};
-var $author$project$Item$getOffers = function (csv_list) {
-	var _v0 = $elm$core$List$tail(csv_list);
-	if (_v0.$ === 'Just') {
-		var contents = _v0.a;
-		return A2(
-			$elm$core$List$map,
-			$elm$core$String$dropLeft(1),
-			A2(
-				$elm$core$List$filter,
-				$elm$core$String$startsWith('+'),
-				contents));
-	} else {
-		return _List_Nil;
-	}
-};
-var $author$project$Item$getTags = function (csv_list) {
-	var _v0 = $elm$core$List$tail(csv_list);
-	if (_v0.$ === 'Just') {
-		var contents = _v0.a;
-		return A2(
-			$elm$core$List$filter,
-			function (x) {
-				return !A2($elm$core$String$startsWith, '-', x);
-			},
-			A2(
-				$elm$core$List$filter,
-				function (x) {
-					return !A2($elm$core$String$startsWith, '+', x);
-				},
-				A2(
-					$elm$core$List$filter,
-					function (x) {
-						return $elm$core$String$length(x) > 0;
-					},
-					contents)));
-	} else {
-		return _List_Nil;
-	}
-};
-var $elm$core$List$head = function (list) {
-	if (list.b) {
-		var x = list.a;
-		var xs = list.b;
-		return $elm$core$Maybe$Just(x);
-	} else {
-		return $elm$core$Maybe$Nothing;
-	}
-};
-var $elm$core$String$split = F2(
-	function (sep, string) {
-		return _List_fromArray(
-			A2(_String_split, sep, string));
-	});
-var $author$project$Item$toItem = function (csv_line) {
-	return function (a) {
-		return {
-			name: $elm$core$List$head(a),
-			needs: $author$project$Item$getNeeds(a),
-			offers: $author$project$Item$getOffers(a),
-			tags: $author$project$Item$getTags(a)
-		};
-	}(
-		A2($elm$core$String$split, ',', csv_line));
+var $author$project$TestScorer$testFire = {
+	name: 'fire',
+	needs: _List_fromArray(
+		['oxygen', 'fuel', 'heat']),
+	offers: _List_fromArray(
+		['heat', 'smoke']),
+	tags: _List_fromArray(
+		['reaction'])
 };
 var $author$project$TestScorer$getSynergy = A2(
 	$elm_explorations$test$Test$test,
@@ -2991,10 +2804,7 @@ var $author$project$TestScorer$getSynergy = A2(
 		return A2(
 			$elm_explorations$test$Expect$equal,
 			2,
-			A2(
-				$author$project$Scorer$getSynergy,
-				$author$project$Item$toItem($author$project$TestScorer$testFire),
-				$author$project$Item$toItem($author$project$TestScorer$testEarth)));
+			A2($author$project$Scorer$getSynergy, $author$project$TestScorer$testFire, $author$project$TestScorer$testEarth));
 	});
 var $elm$core$Result$Err = function (a) {
 	return {$: 'Err', a: a};
@@ -3028,12 +2838,36 @@ var $elm$core$String$join = F2(
 			sep,
 			_List_toArray(chunks));
 	});
+var $elm$core$String$split = F2(
+	function (sep, string) {
+		return _List_fromArray(
+			A2(_String_split, sep, string));
+	});
 var $elm$json$Json$Decode$indent = function (str) {
 	return A2(
 		$elm$core$String$join,
 		'\n    ',
 		A2($elm$core$String$split, '\n', str));
 };
+var $elm$core$List$foldl = F3(
+	function (func, acc, list) {
+		foldl:
+		while (true) {
+			if (!list.b) {
+				return acc;
+			} else {
+				var x = list.a;
+				var xs = list.b;
+				var $temp$func = func,
+					$temp$acc = A2(func, x, acc),
+					$temp$list = xs;
+				func = $temp$func;
+				acc = $temp$acc;
+				list = $temp$list;
+				continue foldl;
+			}
+		}
+	});
 var $elm$core$List$length = function (xs) {
 	return A3(
 		$elm$core$List$foldl,
@@ -3097,6 +2931,9 @@ var $elm$core$Char$isDigit = function (_char) {
 };
 var $elm$core$Char$isAlphaNum = function (_char) {
 	return $elm$core$Char$isLower(_char) || ($elm$core$Char$isUpper(_char) || $elm$core$Char$isDigit(_char));
+};
+var $elm$core$List$reverse = function (list) {
+	return A3($elm$core$List$foldl, $elm$core$List$cons, _List_Nil, list);
 };
 var $elm$core$String$uncons = _String_uncons;
 var $elm$json$Json$Decode$errorOneOf = F2(
@@ -3224,6 +3061,7 @@ var $elm$core$Array$Leaf = function (a) {
 };
 var $elm$core$Basics$floor = _Basics_floor;
 var $elm$core$Elm$JsArray$length = _JsArray_length;
+var $elm$core$Basics$gt = _Utils_gt;
 var $elm$core$Basics$max = F2(
 	function (x, y) {
 		return (_Utils_cmp(x, y) > 0) ? x : y;
@@ -3299,6 +3137,7 @@ var $elm$core$Array$builderToArray = F2(
 		}
 	});
 var $elm$core$Basics$idiv = _Basics_idiv;
+var $elm$core$Basics$lt = _Utils_lt;
 var $elm$core$Array$initializeHelp = F5(
 	function (fn, fromIndex, len, nodeList, tail) {
 		initializeHelp:
@@ -3353,6 +3192,61 @@ var $elm_explorations$test$Test$Internal$ElmTestVariant__Batch = function (a) {
 	return {__elmTestSymbol: __elmTestSymbol, $: 'ElmTestVariant__Batch', a: a};
 };
 var $elm_explorations$test$Test$Runner$Failure$EmptyList = {$: 'EmptyList'};
+var $elm$core$List$foldrHelper = F4(
+	function (fn, acc, ctr, ls) {
+		if (!ls.b) {
+			return acc;
+		} else {
+			var a = ls.a;
+			var r1 = ls.b;
+			if (!r1.b) {
+				return A2(fn, a, acc);
+			} else {
+				var b = r1.a;
+				var r2 = r1.b;
+				if (!r2.b) {
+					return A2(
+						fn,
+						a,
+						A2(fn, b, acc));
+				} else {
+					var c = r2.a;
+					var r3 = r2.b;
+					if (!r3.b) {
+						return A2(
+							fn,
+							a,
+							A2(
+								fn,
+								b,
+								A2(fn, c, acc)));
+					} else {
+						var d = r3.a;
+						var r4 = r3.b;
+						var res = (ctr > 500) ? A3(
+							$elm$core$List$foldl,
+							fn,
+							acc,
+							$elm$core$List$reverse(r4)) : A4($elm$core$List$foldrHelper, fn, acc, ctr + 1, r4);
+						return A2(
+							fn,
+							a,
+							A2(
+								fn,
+								b,
+								A2(
+									fn,
+									c,
+									A2(fn, d, res))));
+					}
+				}
+			}
+		}
+	});
+var $elm$core$List$foldr = F3(
+	function (fn, acc, ls) {
+		return A4($elm$core$List$foldrHelper, fn, acc, 0, ls);
+	});
 var $elm$core$List$append = F2(
 	function (xs, ys) {
 		if (!ys.b) {
@@ -3364,6 +3258,20 @@ var $elm$core$List$append = F2(
 var $elm$core$List$concat = function (lists) {
 	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
 };
+var $elm$core$List$map = F2(
+	function (f, xs) {
+		return A3(
+			$elm$core$List$foldr,
+			F2(
+				function (x, acc) {
+					return A2(
+						$elm$core$List$cons,
+						f(x),
+						acc);
+				}),
+			_List_Nil,
+			xs);
+	});
 var $elm$core$List$concatMap = F2(
 	function (f, list) {
 		return $elm$core$List$concat(
@@ -4043,6 +3951,17 @@ var $author$project$Test$Reporter$Json$reportBegin = function (_v0) {
 						$elm$core$String$fromInt(initialSeed)))
 				])));
 };
+var $elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			$elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
+	});
 var $elm_explorations$test$AsciiTable$AlignLeft = {$: 'AlignLeft'};
 var $elm_explorations$test$AsciiTable$AlignRight = {$: 'AlignRight'};
 var $elm_explorations$test$Test$Runner$Distribution$bars = 30;
@@ -4050,6 +3969,7 @@ var $elm$core$String$cons = _String_cons;
 var $elm$core$String$fromChar = function (_char) {
 	return A2($elm$core$String$cons, _char, '');
 };
+var $elm$core$String$length = _String_length;
 var $elm$core$Bitwise$and = _Bitwise_and;
 var $elm$core$Bitwise$shiftRightBy = _Bitwise_shiftRightBy;
 var $elm$core$String$repeatHelp = F3(
@@ -7820,15 +7740,25 @@ var $author$project$Scorer$scoreList = function (item_list) {
 		return A2($author$project$Scorer$scoreMargin, x, xs) + $author$project$Scorer$scoreList(xs);
 	}
 };
-var $author$project$TestScorer$testAir = 'air,fluid,+oxygen';
-var $author$project$TestScorer$testWater = 'water,fluid,-cool,+moisture';
+var $author$project$TestScorer$testAir = {
+	name: 'air',
+	needs: _List_Nil,
+	offers: _List_fromArray(
+		['oxygen']),
+	tags: _List_fromArray(
+		['fluid'])
+};
+var $author$project$TestScorer$testWater = {
+	name: 'water',
+	needs: _List_fromArray(
+		['cool']),
+	offers: _List_fromArray(
+		['moisture']),
+	tags: _List_fromArray(
+		['fluid'])
+};
 var $author$project$TestScorer$testItemList = _List_fromArray(
-	[
-		$author$project$Item$toItem($author$project$TestScorer$testFire),
-		$author$project$Item$toItem($author$project$TestScorer$testWater),
-		$author$project$Item$toItem($author$project$TestScorer$testAir),
-		$author$project$Item$toItem($author$project$TestScorer$testEarth)
-	]);
+	[$author$project$TestScorer$testFire, $author$project$TestScorer$testWater, $author$project$TestScorer$testAir, $author$project$TestScorer$testEarth]);
 var $author$project$TestScorer$scoreList = A2(
 	$elm_explorations$test$Test$test,
 	'scoreList should add up all synergies in list',
@@ -7845,10 +7775,7 @@ var $author$project$TestScorer$scoreMargin = A2(
 		return A2(
 			$elm_explorations$test$Expect$equal,
 			5,
-			A2(
-				$author$project$Scorer$scoreMargin,
-				$author$project$Item$toItem($author$project$TestScorer$testFire),
-				$author$project$TestScorer$testItemList));
+			A2($author$project$Scorer$scoreMargin, $author$project$TestScorer$testFire, $author$project$TestScorer$testItemList));
 	});
 var $author$project$Scorer$scoreRemoval = F2(
 	function (item, item_list) {
@@ -7869,10 +7796,7 @@ var $author$project$TestScorer$scoreRemoval = A2(
 		return A2(
 			$elm_explorations$test$Expect$equal,
 			3,
-			A2(
-				$author$project$Scorer$scoreRemoval,
-				$author$project$Item$toItem($author$project$TestScorer$testFire),
-				$author$project$TestScorer$testItemList));
+			A2($author$project$Scorer$scoreRemoval, $author$project$TestScorer$testFire, $author$project$TestScorer$testItemList));
 	});
 var $author$project$Scorer$sortByMargin = F2(
 	function (target_list, reference_list) {
@@ -7891,19 +7815,11 @@ var $author$project$TestScorer$sortByMargin = A2(
 		return A2(
 			$elm_explorations$test$Expect$equal,
 			_List_fromArray(
-				[
-					$author$project$Item$toItem($author$project$TestScorer$testFire),
-					$author$project$Item$toItem($author$project$TestScorer$testAir),
-					$author$project$Item$toItem($author$project$TestScorer$testWater)
-				]),
+				[$author$project$TestScorer$testFire, $author$project$TestScorer$testAir, $author$project$TestScorer$testWater]),
 			A2(
 				$author$project$Scorer$sortByMargin,
 				_List_fromArray(
-					[
-						$author$project$Item$toItem($author$project$TestScorer$testFire),
-						$author$project$Item$toItem($author$project$TestScorer$testWater),
-						$author$project$Item$toItem($author$project$TestScorer$testAir)
-					]),
+					[$author$project$TestScorer$testFire, $author$project$TestScorer$testWater, $author$project$TestScorer$testAir]),
 				$author$project$TestScorer$testItemList));
 	});
 var $author$project$Scorer$sortByRemoval = function (target_list) {
@@ -7921,12 +7837,7 @@ var $author$project$TestScorer$sortByRemoval = A2(
 		return A2(
 			$elm_explorations$test$Expect$equal,
 			_List_fromArray(
-				[
-					$author$project$Item$toItem($author$project$TestScorer$testWater),
-					$author$project$Item$toItem($author$project$TestScorer$testAir),
-					$author$project$Item$toItem($author$project$TestScorer$testFire),
-					$author$project$Item$toItem($author$project$TestScorer$testEarth)
-				]),
+				[$author$project$TestScorer$testWater, $author$project$TestScorer$testAir, $author$project$TestScorer$testFire, $author$project$TestScorer$testEarth]),
 			$author$project$Scorer$sortByRemoval($author$project$TestScorer$testItemList));
 	});
 var $author$project$TestItem$testAir = 'air,fluid,+oxygen';
@@ -7935,29 +7846,99 @@ var $author$project$TestMain$testCsv = 'fire,reaction,-oxygen,-fuel,+heat,+smoke
 var $author$project$TestItem$testEarth = 'earth,solid,-smoke,-moisture,-oxygen,+fuel';
 var $author$project$TestItem$testFire = 'fire,reaction,-oxygen,-fuel,-heat,+heat,+smoke';
 var $author$project$TestItem$testWater = 'water,fluid,-cool,+moisture';
+var $elm$core$String$slice = _String_slice;
+var $elm$core$String$dropLeft = F2(
+	function (n, string) {
+		return (n < 1) ? string : A3(
+			$elm$core$String$slice,
+			n,
+			$elm$core$String$length(string),
+			string);
+	});
+var $elm$core$String$startsWith = _String_startsWith;
+var $author$project$Item$getNeeds = function (contents) {
+	return A2(
+		$elm$core$List$map,
+		$elm$core$String$dropLeft(1),
+		A2(
+			$elm$core$List$filter,
+			$elm$core$String$startsWith('-'),
+			contents));
+};
+var $author$project$Item$getOffers = function (contents) {
+	return A2(
+		$elm$core$List$map,
+		$elm$core$String$dropLeft(1),
+		A2(
+			$elm$core$List$filter,
+			$elm$core$String$startsWith('+'),
+			contents));
+};
+var $author$project$Item$getTags = function (contents) {
+	return A2(
+		$elm$core$List$filter,
+		function (x) {
+			return !A2($elm$core$String$startsWith, '-', x);
+		},
+		A2(
+			$elm$core$List$filter,
+			function (x) {
+				return !A2($elm$core$String$startsWith, '+', x);
+			},
+			A2(
+				$elm$core$List$filter,
+				function (x) {
+					return $elm$core$String$length(x) > 0;
+				},
+				contents)));
+};
+var $author$project$Item$toItem = function (csv_line) {
+	return function (entries) {
+		if (!entries.b) {
+			return $elm$core$Maybe$Nothing;
+		} else {
+			var x = entries.a;
+			var xs = entries.b;
+			return $elm$core$Maybe$Just(
+				{
+					name: x,
+					needs: $author$project$Item$getNeeds(xs),
+					offers: $author$project$Item$getOffers(xs),
+					tags: $author$project$Item$getTags(xs)
+				});
+		}
+	}(
+		A2($elm$core$String$split, ',', csv_line));
+};
 var $author$project$TestItem$toItem = A2(
 	$elm_explorations$test$Test$test,
 	'item should be fire',
 	function (_v0) {
 		return A2(
 			$elm_explorations$test$Expect$equal,
-			{
-				name: $elm$core$Maybe$Just('fire'),
-				needs: _List_fromArray(
-					['oxygen', 'fuel', 'heat']),
-				offers: _List_fromArray(
-					['heat', 'smoke']),
-				tags: _List_fromArray(
-					['reaction'])
-			},
+			$elm$core$Maybe$Just(
+				{
+					name: 'fire',
+					needs: _List_fromArray(
+						['oxygen', 'fuel', 'heat']),
+					offers: _List_fromArray(
+						['heat', 'smoke']),
+					tags: _List_fromArray(
+						['reaction'])
+				}),
 			$author$project$Item$toItem($author$project$TestItem$testFire));
 	});
 var $elm$core$String$lines = _String_lines;
 var $author$project$Item$toItemList = function (csv) {
 	return A2(
-		$elm$core$List$map,
-		$author$project$Item$toItem,
-		$elm$core$String$lines(csv));
+		$elm$core$List$filter,
+		function (item) {
+			return item.name !== '';
+		},
+		A2(
+			$elm$core$List$filterMap,
+			$author$project$Item$toItem,
+			$elm$core$String$lines(csv)));
 };
 var $author$project$TestItem$toItemList = A2(
 	$elm_explorations$test$Test$test,
@@ -7968,7 +7949,7 @@ var $author$project$TestItem$toItemList = A2(
 			_List_fromArray(
 				[
 					{
-					name: $elm$core$Maybe$Just('fire'),
+					name: 'fire',
 					needs: _List_fromArray(
 						['oxygen', 'fuel', 'heat']),
 					offers: _List_fromArray(
@@ -7977,7 +7958,7 @@ var $author$project$TestItem$toItemList = A2(
 						['reaction'])
 				},
 					{
-					name: $elm$core$Maybe$Just('water'),
+					name: 'water',
 					needs: _List_fromArray(
 						['cool']),
 					offers: _List_fromArray(
@@ -7986,7 +7967,7 @@ var $author$project$TestItem$toItemList = A2(
 						['fluid'])
 				},
 					{
-					name: $elm$core$Maybe$Just('air'),
+					name: 'air',
 					needs: _List_Nil,
 					offers: _List_fromArray(
 						['oxygen']),
@@ -7994,7 +7975,7 @@ var $author$project$TestItem$toItemList = A2(
 						['fluid'])
 				},
 					{
-					name: $elm$core$Maybe$Just('earth'),
+					name: 'earth',
 					needs: _List_fromArray(
 						['smoke', 'moisture', 'oxygen']),
 					offers: _List_fromArray(
@@ -8014,7 +7995,7 @@ var $author$project$Test$Generated$Main$main = A2(
 		processes: 8,
 		report: $author$project$Test$Reporter$Reporter$ConsoleReport($author$project$Console$Text$Monochrome),
 		runs: 100,
-		seed: 87073318406053
+		seed: 2172894573046
 	},
 	_List_fromArray(
 		[
@@ -8056,7 +8037,7 @@ var $author$project$Test$Generated$Main$main = A2(
 _Platform_export({'Test':{'Generated':{'Main':{'init':$author$project$Test$Generated$Main$main($elm$json$Json$Decode$int)(0)}}}});}(this));
 return this.Elm;
 })({});
-var pipeFilename = "\\\\.\\pipe\\elm_test-13960-1";
+var pipeFilename = "\\\\.\\pipe\\elm_test-3940-1";
 var net = require('net'),
   client = net.createConnection(pipeFilename);
 
