@@ -14,14 +14,14 @@ main =
     Test.Runner.Node.run
         { runs = 100
         , report = ConsoleReport Monochrome
-        , seed = 241171833475815
+        , seed = 18133593833859
         , processes = 8
         , globs =
             []
         , paths =
-            [ "E:\\GitHub\\synergy_finder\\elm\\tests\\TestItem.elm"
-            , "E:\\GitHub\\synergy_finder\\elm\\tests\\TestMain.elm"
-            , "E:\\GitHub\\synergy_finder\\elm\\tests\\TestScorer.elm"
+            [ "E:\\GitHub\\synergy_finder\\tests\\TestItem.elm"
+            , "E:\\GitHub\\synergy_finder\\tests\\TestMain.elm"
+            , "E:\\GitHub\\synergy_finder\\tests\\TestScorer.elm"
             ]
         }
         [ ( "TestItem"
@@ -45,9 +45,6 @@ main =
             , Test.Runner.Node.check TestScorer.testEarth
             , Test.Runner.Node.check TestScorer.testItemList
             , Test.Runner.Node.check TestScorer.sortByMargin
-            , Test.Runner.Node.check TestScorer.sortByRemoval
-            , Test.Runner.Node.check TestScorer.getSynergy
-            , Test.Runner.Node.check TestScorer.scoreMargin
             , Test.Runner.Node.check TestScorer.scoreRemoval
             , Test.Runner.Node.check TestScorer.scoreList
             , Test.Runner.Node.check TestScorer.scoreRemovalVerbose

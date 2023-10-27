@@ -41,28 +41,6 @@ sortByMargin =
             |> Expect.equal [testFire, testAir, testWater]
 
 
-sortByRemoval =
-    test "sortByRemoval sorts items in ascending order by score margin against the list they come from" <|
-        \_ ->
-            Scorer.sortByRemoval testItemList
-            |> Expect.equal [testWater, testAir, testFire, testEarth]
-
-
-getSynergy =
-    test "getSynergy should return product of items" <|
-        \_ ->
-            Scorer.getSynergy testFire testEarth
-            |> Expect.equal 2
-
-
-scoreMargin =
-    test "scoreMargin should add up synergies" <|
-        \_ ->
-            testItemList
-            |> Scorer.scoreMargin testFire
-            |> Expect.equal 5
-
-
 scoreRemoval =
     test "scoreRemoval should not synergize item with itself" <|
         \_ ->

@@ -2607,205 +2607,6 @@ var $author$project$Test$Runner$Node$checkHelperReplaceMe___ = function (_v0) {
 		})('The regex for replacing this Debug.todo with some real code must have failed since you see this message!\n\nPlease report this bug: https://github.com/rtfeldman/node-test-runner/issues/new\n');
 };
 var $author$project$Test$Runner$Node$check = value => value && value.__elmTestSymbol === __elmTestSymbol ? $elm$core$Maybe$Just(value) : $elm$core$Maybe$Nothing;
-var $elm$core$Basics$apL = F2(
-	function (f, x) {
-		return f(x);
-	});
-var $elm$core$Basics$apR = F2(
-	function (x, f) {
-		return f(x);
-	});
-var $elm$core$Basics$eq = _Utils_equal;
-var $elm_explorations$test$Test$Runner$Failure$Equality = F2(
-	function (a, b) {
-		return {$: 'Equality', a: a, b: b};
-	});
-var $elm$core$Basics$False = {$: 'False'};
-var $elm$core$Basics$True = {$: 'True'};
-var $elm$core$Basics$and = _Basics_and;
-var $elm$core$Maybe$Just = function (a) {
-	return {$: 'Just', a: a};
-};
-var $elm$core$Maybe$Nothing = {$: 'Nothing'};
-var $elm$core$String$contains = _String_contains;
-var $elm_explorations$test$Test$Runner$Failure$Custom = {$: 'Custom'};
-var $elm_explorations$test$Test$Expectation$Fail = function (a) {
-	return {$: 'Fail', a: a};
-};
-var $elm_explorations$test$Test$Distribution$NoDistribution = {$: 'NoDistribution'};
-var $elm_explorations$test$Test$Expectation$fail = function (_v0) {
-	var description = _v0.description;
-	var reason = _v0.reason;
-	return $elm_explorations$test$Test$Expectation$Fail(
-		{description: description, distributionReport: $elm_explorations$test$Test$Distribution$NoDistribution, given: $elm$core$Maybe$Nothing, reason: reason});
-};
-var $elm_explorations$test$Expect$fail = function (str) {
-	return $elm_explorations$test$Test$Expectation$fail(
-		{description: str, reason: $elm_explorations$test$Test$Runner$Failure$Custom});
-};
-var $elm$core$Basics$not = _Basics_not;
-var $elm$core$Basics$or = _Basics_or;
-var $elm_explorations$test$Test$Expectation$Pass = function (a) {
-	return {$: 'Pass', a: a};
-};
-var $elm_explorations$test$Expect$pass = $elm_explorations$test$Test$Expectation$Pass(
-	{distributionReport: $elm_explorations$test$Test$Distribution$NoDistribution});
-var $elm_explorations$test$Test$Internal$toString = _Debug_toString;
-var $elm_explorations$test$Expect$testWith = F5(
-	function (makeReason, label, runTest, expected, actual) {
-		return A2(runTest, actual, expected) ? $elm_explorations$test$Expect$pass : $elm_explorations$test$Test$Expectation$fail(
-			{
-				description: label,
-				reason: A2(
-					makeReason,
-					$elm_explorations$test$Test$Internal$toString(expected),
-					$elm_explorations$test$Test$Internal$toString(actual))
-			});
-	});
-var $elm$core$String$toFloat = _String_toFloat;
-var $elm$core$String$toInt = _String_toInt;
-var $elm_explorations$test$Expect$equateWith = F4(
-	function (reason, comparison, b, a) {
-		var isJust = function (x) {
-			if (x.$ === 'Just') {
-				return true;
-			} else {
-				return false;
-			}
-		};
-		var isFloat = function (x) {
-			return isJust(
-				$elm$core$String$toFloat(x)) && (!isJust(
-				$elm$core$String$toInt(x)));
-		};
-		var usesFloats = isFloat(
-			$elm_explorations$test$Test$Internal$toString(a)) || isFloat(
-			$elm_explorations$test$Test$Internal$toString(b));
-		var floatError = A2($elm$core$String$contains, reason, 'not') ? 'Do not use Expect.notEqual with floats. Use Expect.notWithin instead.' : 'Do not use Expect.equal with floats. Use Expect.within instead.';
-		return usesFloats ? $elm_explorations$test$Expect$fail(floatError) : A5($elm_explorations$test$Expect$testWith, $elm_explorations$test$Test$Runner$Failure$Equality, reason, comparison, b, a);
-	});
-var $elm_explorations$test$Expect$equal = A2($elm_explorations$test$Expect$equateWith, 'Expect.equal', $elm$core$Basics$eq);
-var $elm$core$Basics$add = _Basics_add;
-var $elm$core$List$any = F2(
-	function (isOkay, list) {
-		any:
-		while (true) {
-			if (!list.b) {
-				return false;
-			} else {
-				var x = list.a;
-				var xs = list.b;
-				if (isOkay(x)) {
-					return true;
-				} else {
-					var $temp$isOkay = isOkay,
-						$temp$list = xs;
-					isOkay = $temp$isOkay;
-					list = $temp$list;
-					continue any;
-				}
-			}
-		}
-	});
-var $elm$core$List$member = F2(
-	function (x, xs) {
-		return A2(
-			$elm$core$List$any,
-			function (a) {
-				return _Utils_eq(a, x);
-			},
-			xs);
-	});
-var $author$project$Scorer$getSupport = F2(
-	function (item_1, item_2) {
-		var _v0 = item_1.offers;
-		if (!_v0.b) {
-			return 0;
-		} else {
-			var x = _v0.a;
-			var xs = _v0.b;
-			return (A2($elm$core$List$member, x, item_2.needs) ? 1 : 0) + A2(
-				$author$project$Scorer$getSupport,
-				_Utils_update(
-					item_1,
-					{offers: xs}),
-				item_2);
-		}
-	});
-var $author$project$Scorer$getSynergy = F2(
-	function (item_1, item_2) {
-		return A2($author$project$Scorer$getSupport, item_1, item_2) + A2($author$project$Scorer$getSupport, item_2, item_1);
-	});
-var $elm_explorations$test$Test$Internal$ElmTestVariant__Labeled = F2(
-	function (a, b) {
-		return {__elmTestSymbol: __elmTestSymbol, $: 'ElmTestVariant__Labeled', a: a, b: b};
-	});
-var $elm_explorations$test$Test$Internal$ElmTestVariant__UnitTest = function (a) {
-	return {__elmTestSymbol: __elmTestSymbol, $: 'ElmTestVariant__UnitTest', a: a};
-};
-var $elm_explorations$test$Test$Runner$Failure$BadDescription = {$: 'BadDescription'};
-var $elm_explorations$test$Test$Runner$Failure$Invalid = function (a) {
-	return {$: 'Invalid', a: a};
-};
-var $elm_explorations$test$Test$Internal$failNow = function (record) {
-	return $elm_explorations$test$Test$Internal$ElmTestVariant__UnitTest(
-		function (_v0) {
-			return _List_fromArray(
-				[
-					$elm_explorations$test$Test$Expectation$fail(record)
-				]);
-		});
-};
-var $elm_explorations$test$Test$Internal$blankDescriptionFailure = $elm_explorations$test$Test$Internal$failNow(
-	{
-		description: 'This test has a blank description. Let\'s give it a useful one!',
-		reason: $elm_explorations$test$Test$Runner$Failure$Invalid($elm_explorations$test$Test$Runner$Failure$BadDescription)
-	});
-var $elm$core$String$isEmpty = function (string) {
-	return string === '';
-};
-var $elm$core$String$trim = _String_trim;
-var $elm_explorations$test$Test$test = F2(
-	function (untrimmedDesc, thunk) {
-		var desc = $elm$core$String$trim(untrimmedDesc);
-		return $elm$core$String$isEmpty(desc) ? $elm_explorations$test$Test$Internal$blankDescriptionFailure : A2(
-			$elm_explorations$test$Test$Internal$ElmTestVariant__Labeled,
-			desc,
-			$elm_explorations$test$Test$Internal$ElmTestVariant__UnitTest(
-				function (_v0) {
-					return _List_fromArray(
-						[
-							thunk(_Utils_Tuple0)
-						]);
-				}));
-	});
-var $author$project$TestScorer$testEarth = {
-	name: 'earth',
-	needs: _List_fromArray(
-		['smoke', 'moisture', 'oxygen']),
-	offers: _List_fromArray(
-		['fuel']),
-	tags: _List_fromArray(
-		['solid'])
-};
-var $author$project$TestScorer$testFire = {
-	name: 'fire',
-	needs: _List_fromArray(
-		['oxygen', 'fuel', 'heat']),
-	offers: _List_fromArray(
-		['heat', 'smoke']),
-	tags: _List_fromArray(
-		['reaction'])
-};
-var $author$project$TestScorer$getSynergy = A2(
-	$elm_explorations$test$Test$test,
-	'getSynergy should return product of items',
-	function (_v0) {
-		return A2(
-			$elm_explorations$test$Expect$equal,
-			2,
-			A2($author$project$Scorer$getSynergy, $author$project$TestScorer$testFire, $author$project$TestScorer$testEarth));
-	});
 var $elm$core$Result$Err = function (a) {
 	return {$: 'Err', a: a};
 };
@@ -2827,7 +2628,14 @@ var $elm$core$Result$Ok = function (a) {
 var $elm$json$Json$Decode$OneOf = function (a) {
 	return {$: 'OneOf', a: a};
 };
+var $elm$core$Basics$False = {$: 'False'};
+var $elm$core$Basics$add = _Basics_add;
+var $elm$core$Maybe$Just = function (a) {
+	return {$: 'Just', a: a};
+};
+var $elm$core$Maybe$Nothing = {$: 'Nothing'};
 var $elm$core$String$all = _String_all;
+var $elm$core$Basics$and = _Basics_and;
 var $elm$core$Basics$append = _Utils_append;
 var $elm$json$Json$Encode$encode = _Json_encode;
 var $elm$core$String$fromInt = _String_fromNumber;
@@ -2922,6 +2730,7 @@ var $elm$core$Char$isUpper = function (_char) {
 	var code = $elm$core$Char$toCode(_char);
 	return (code <= 90) && (65 <= code);
 };
+var $elm$core$Basics$or = _Basics_or;
 var $elm$core$Char$isAlpha = function (_char) {
 	return $elm$core$Char$isLower(_char) || $elm$core$Char$isUpper(_char);
 };
@@ -3059,6 +2868,15 @@ var $elm$core$Elm$JsArray$initialize = _JsArray_initialize;
 var $elm$core$Array$Leaf = function (a) {
 	return {$: 'Leaf', a: a};
 };
+var $elm$core$Basics$apL = F2(
+	function (f, x) {
+		return f(x);
+	});
+var $elm$core$Basics$apR = F2(
+	function (x, f) {
+		return f(x);
+	});
+var $elm$core$Basics$eq = _Utils_equal;
 var $elm$core$Basics$floor = _Basics_floor;
 var $elm$core$Elm$JsArray$length = _JsArray_length;
 var $elm$core$Basics$gt = _Utils_gt;
@@ -3176,6 +2994,7 @@ var $elm$core$Array$initialize = F2(
 			return A5($elm$core$Array$initializeHelp, fn, initialFromIndex, len, _List_Nil, tail);
 		}
 	});
+var $elm$core$Basics$True = {$: 'True'};
 var $elm$core$Result$isOk = function (result) {
 	if (result.$ === 'Ok') {
 		return true;
@@ -3192,6 +3011,9 @@ var $elm_explorations$test$Test$Internal$ElmTestVariant__Batch = function (a) {
 	return {__elmTestSymbol: __elmTestSymbol, $: 'ElmTestVariant__Batch', a: a};
 };
 var $elm_explorations$test$Test$Runner$Failure$EmptyList = {$: 'EmptyList'};
+var $elm_explorations$test$Test$Runner$Failure$Invalid = function (a) {
+	return {$: 'Invalid', a: a};
+};
 var $elm$core$List$foldrHelper = F4(
 	function (fn, acc, ctr, ls) {
 		if (!ls.b) {
@@ -3505,6 +3327,28 @@ var $elm_explorations$test$Test$Internal$duplicatedName = function (tests) {
 	var uniquesAccum = _v1.b;
 	return $elm$core$Set$isEmpty(dupsAccum) ? $elm$core$Result$Ok(uniquesAccum) : $elm$core$Result$Err(dupsAccum);
 };
+var $elm_explorations$test$Test$Internal$ElmTestVariant__UnitTest = function (a) {
+	return {__elmTestSymbol: __elmTestSymbol, $: 'ElmTestVariant__UnitTest', a: a};
+};
+var $elm_explorations$test$Test$Expectation$Fail = function (a) {
+	return {$: 'Fail', a: a};
+};
+var $elm_explorations$test$Test$Distribution$NoDistribution = {$: 'NoDistribution'};
+var $elm_explorations$test$Test$Expectation$fail = function (_v0) {
+	var description = _v0.description;
+	var reason = _v0.reason;
+	return $elm_explorations$test$Test$Expectation$Fail(
+		{description: description, distributionReport: $elm_explorations$test$Test$Distribution$NoDistribution, given: $elm$core$Maybe$Nothing, reason: reason});
+};
+var $elm_explorations$test$Test$Internal$failNow = function (record) {
+	return $elm_explorations$test$Test$Internal$ElmTestVariant__UnitTest(
+		function (_v0) {
+			return _List_fromArray(
+				[
+					$elm_explorations$test$Test$Expectation$fail(record)
+				]);
+		});
+};
 var $elm$core$List$isEmpty = function (xs) {
 	if (!xs.b) {
 		return true;
@@ -3542,6 +3386,15 @@ var $elm_explorations$test$Test$concat = function (tests) {
 		}
 	}
 };
+var $elm_explorations$test$Test$Runner$Failure$BadDescription = {$: 'BadDescription'};
+var $elm_explorations$test$Test$Internal$ElmTestVariant__Labeled = F2(
+	function (a, b) {
+		return {__elmTestSymbol: __elmTestSymbol, $: 'ElmTestVariant__Labeled', a: a, b: b};
+	});
+var $elm$core$String$isEmpty = function (string) {
+	return string === '';
+};
+var $elm$core$String$trim = _String_trim;
 var $elm_explorations$test$Test$describe = F2(
 	function (untrimmedDesc, tests) {
 		var desc = $elm$core$String$trim(untrimmedDesc);
@@ -4174,6 +4027,27 @@ var $elm_explorations$test$Test$Runner$Distribution$formatAsciiTable = F2(
 				]),
 			items);
 	});
+var $elm$core$List$any = F2(
+	function (isOkay, list) {
+		any:
+		while (true) {
+			if (!list.b) {
+				return false;
+			} else {
+				var x = list.a;
+				var xs = list.b;
+				if (isOkay(x)) {
+					return true;
+				} else {
+					var $temp$isOkay = isOkay,
+						$temp$list = xs;
+					isOkay = $temp$isOkay;
+					list = $temp$list;
+					continue any;
+				}
+			}
+		}
+	});
 var $elm$core$Basics$composeR = F3(
 	function (f, g, x) {
 		return g(
@@ -4587,6 +4461,7 @@ var $elm$core$Set$diff = F2(
 var $elm$core$Set$fromList = function (list) {
 	return A3($elm$core$List$foldl, $elm$core$Set$insert, $elm$core$Set$empty, list);
 };
+var $elm$core$Basics$not = _Basics_not;
 var $elm_explorations$test$Test$Runner$Distribution$isStrictSubset = F2(
 	function (all, combination) {
 		var combinationSet = $elm$core$Set$fromList(combination);
@@ -5492,6 +5367,7 @@ var $author$project$Test$Reporter$Highlightable$diffLists = F2(
 			$author$project$Test$Reporter$Highlightable$fromDiff,
 			A2($author$project$Test$Runner$Node$Vendor$Diff$diff, expected, actual));
 	});
+var $elm$core$String$toFloat = _String_toFloat;
 var $author$project$Test$Reporter$Console$Format$isFloat = function (str) {
 	var _v0 = $elm$core$String$toFloat(str);
 	if (_v0.$ === 'Just') {
@@ -7040,6 +6916,11 @@ var $elm_explorations$test$Test$Runner$distributeSeedsHelp = F4(
 		}
 	});
 var $elm_explorations$test$Test$Runner$distributeSeeds = $elm_explorations$test$Test$Runner$distributeSeedsHelp(false);
+var $elm_explorations$test$Test$Runner$Failure$Custom = {$: 'Custom'};
+var $elm_explorations$test$Expect$fail = function (str) {
+	return $elm_explorations$test$Test$Expectation$fail(
+		{description: str, reason: $elm_explorations$test$Test$Runner$Failure$Custom});
+};
 var $elm_explorations$test$Test$Runner$runThunk = _Test_runThunk;
 var $elm_explorations$test$Test$Runner$run = function (_v0) {
 	var fn = _v0.a;
@@ -7720,16 +7601,94 @@ var $author$project$Test$Runner$Node$run = F2(
 				});
 		}
 	});
-var $author$project$Scorer$scoreMargin = F2(
+var $elm_explorations$test$Test$Runner$Failure$Equality = F2(
+	function (a, b) {
+		return {$: 'Equality', a: a, b: b};
+	});
+var $elm$core$String$contains = _String_contains;
+var $elm_explorations$test$Test$Expectation$Pass = function (a) {
+	return {$: 'Pass', a: a};
+};
+var $elm_explorations$test$Expect$pass = $elm_explorations$test$Test$Expectation$Pass(
+	{distributionReport: $elm_explorations$test$Test$Distribution$NoDistribution});
+var $elm_explorations$test$Test$Internal$toString = _Debug_toString;
+var $elm_explorations$test$Expect$testWith = F5(
+	function (makeReason, label, runTest, expected, actual) {
+		return A2(runTest, actual, expected) ? $elm_explorations$test$Expect$pass : $elm_explorations$test$Test$Expectation$fail(
+			{
+				description: label,
+				reason: A2(
+					makeReason,
+					$elm_explorations$test$Test$Internal$toString(expected),
+					$elm_explorations$test$Test$Internal$toString(actual))
+			});
+	});
+var $elm$core$String$toInt = _String_toInt;
+var $elm_explorations$test$Expect$equateWith = F4(
+	function (reason, comparison, b, a) {
+		var isJust = function (x) {
+			if (x.$ === 'Just') {
+				return true;
+			} else {
+				return false;
+			}
+		};
+		var isFloat = function (x) {
+			return isJust(
+				$elm$core$String$toFloat(x)) && (!isJust(
+				$elm$core$String$toInt(x)));
+		};
+		var usesFloats = isFloat(
+			$elm_explorations$test$Test$Internal$toString(a)) || isFloat(
+			$elm_explorations$test$Test$Internal$toString(b));
+		var floatError = A2($elm$core$String$contains, reason, 'not') ? 'Do not use Expect.notEqual with floats. Use Expect.notWithin instead.' : 'Do not use Expect.equal with floats. Use Expect.within instead.';
+		return usesFloats ? $elm_explorations$test$Expect$fail(floatError) : A5($elm_explorations$test$Expect$testWith, $elm_explorations$test$Test$Runner$Failure$Equality, reason, comparison, b, a);
+	});
+var $elm_explorations$test$Expect$equal = A2($elm_explorations$test$Expect$equateWith, 'Expect.equal', $elm$core$Basics$eq);
+var $elm$core$List$member = F2(
+	function (x, xs) {
+		return A2(
+			$elm$core$List$any,
+			function (a) {
+				return _Utils_eq(a, x);
+			},
+			xs);
+	});
+var $author$project$Scorer$getSupport = F2(
+	function (item_1, item_2) {
+		var _v0 = item_1.offers;
+		if (!_v0.b) {
+			return 0;
+		} else {
+			var x = _v0.a;
+			var xs = _v0.b;
+			return (A2($elm$core$List$member, x, item_2.needs) ? 1 : 0) + A2(
+				$author$project$Scorer$getSupport,
+				_Utils_update(
+					item_1,
+					{offers: xs}),
+				item_2);
+		}
+	});
+var $author$project$Scorer$scoreRemoval = F2(
 	function (item, item_list) {
+		var getSynergy = F2(
+			function (item_1, item_2) {
+				return A2($author$project$Scorer$getSupport, item_1, item_2) + A2($author$project$Scorer$getSupport, item_2, item_1);
+			});
 		return A3(
 			$elm$core$List$foldl,
 			$elm$core$Basics$add,
 			0,
 			A2(
 				$elm$core$List$map,
-				$author$project$Scorer$getSynergy(item),
-				item_list));
+				getSynergy(item),
+				A2(
+					$elm$core$List$filter,
+					function (x) {
+						return !_Utils_eq(x, item);
+					},
+					item_list)));
 	});
 var $author$project$Scorer$scoreList = function (item_list) {
 	if (!item_list.b) {
@@ -7737,9 +7696,28 @@ var $author$project$Scorer$scoreList = function (item_list) {
 	} else {
 		var x = item_list.a;
 		var xs = item_list.b;
-		return A2($author$project$Scorer$scoreMargin, x, xs) + $author$project$Scorer$scoreList(xs);
+		return A2($author$project$Scorer$scoreRemoval, x, xs) + $author$project$Scorer$scoreList(xs);
 	}
 };
+var $elm_explorations$test$Test$Internal$blankDescriptionFailure = $elm_explorations$test$Test$Internal$failNow(
+	{
+		description: 'This test has a blank description. Let\'s give it a useful one!',
+		reason: $elm_explorations$test$Test$Runner$Failure$Invalid($elm_explorations$test$Test$Runner$Failure$BadDescription)
+	});
+var $elm_explorations$test$Test$test = F2(
+	function (untrimmedDesc, thunk) {
+		var desc = $elm$core$String$trim(untrimmedDesc);
+		return $elm$core$String$isEmpty(desc) ? $elm_explorations$test$Test$Internal$blankDescriptionFailure : A2(
+			$elm_explorations$test$Test$Internal$ElmTestVariant__Labeled,
+			desc,
+			$elm_explorations$test$Test$Internal$ElmTestVariant__UnitTest(
+				function (_v0) {
+					return _List_fromArray(
+						[
+							thunk(_Utils_Tuple0)
+						]);
+				}));
+	});
 var $author$project$TestScorer$testAir = {
 	name: 'air',
 	needs: _List_Nil,
@@ -7747,6 +7725,24 @@ var $author$project$TestScorer$testAir = {
 		['oxygen']),
 	tags: _List_fromArray(
 		['fluid'])
+};
+var $author$project$TestScorer$testEarth = {
+	name: 'earth',
+	needs: _List_fromArray(
+		['smoke', 'moisture', 'oxygen']),
+	offers: _List_fromArray(
+		['fuel']),
+	tags: _List_fromArray(
+		['solid'])
+};
+var $author$project$TestScorer$testFire = {
+	name: 'fire',
+	needs: _List_fromArray(
+		['oxygen', 'fuel', 'heat']),
+	offers: _List_fromArray(
+		['heat', 'smoke']),
+	tags: _List_fromArray(
+		['reaction'])
 };
 var $author$project$TestScorer$testWater = {
 	name: 'water',
@@ -7767,27 +7763,6 @@ var $author$project$TestScorer$scoreList = A2(
 			$elm_explorations$test$Expect$equal,
 			5,
 			$author$project$Scorer$scoreList($author$project$TestScorer$testItemList));
-	});
-var $author$project$TestScorer$scoreMargin = A2(
-	$elm_explorations$test$Test$test,
-	'scoreMargin should add up synergies',
-	function (_v0) {
-		return A2(
-			$elm_explorations$test$Expect$equal,
-			5,
-			A2($author$project$Scorer$scoreMargin, $author$project$TestScorer$testFire, $author$project$TestScorer$testItemList));
-	});
-var $author$project$Scorer$scoreRemoval = F2(
-	function (item, item_list) {
-		return A2(
-			$author$project$Scorer$scoreMargin,
-			item,
-			A2(
-				$elm$core$List$filter,
-				function (x) {
-					return !_Utils_eq(x, item);
-				},
-				item_list));
 	});
 var $author$project$TestScorer$scoreRemoval = A2(
 	$elm_explorations$test$Test$test,
@@ -7904,7 +7879,7 @@ var $author$project$Scorer$sortByMargin = F2(
 			A2(
 				$elm$core$List$sortBy,
 				function (x) {
-					return A2($author$project$Scorer$scoreMargin, x, reference_list);
+					return A2($author$project$Scorer$scoreRemoval, x, reference_list);
 				},
 				target_list));
 	});
@@ -7921,24 +7896,6 @@ var $author$project$TestScorer$sortByMargin = A2(
 				_List_fromArray(
 					[$author$project$TestScorer$testFire, $author$project$TestScorer$testWater, $author$project$TestScorer$testAir]),
 				$author$project$TestScorer$testItemList));
-	});
-var $author$project$Scorer$sortByRemoval = function (target_list) {
-	return A2(
-		$elm$core$List$sortBy,
-		function (x) {
-			return A2($author$project$Scorer$scoreRemoval, x, target_list);
-		},
-		target_list);
-};
-var $author$project$TestScorer$sortByRemoval = A2(
-	$elm_explorations$test$Test$test,
-	'sortByRemoval sorts items in ascending order by score margin against the list they come from',
-	function (_v0) {
-		return A2(
-			$elm_explorations$test$Expect$equal,
-			_List_fromArray(
-				[$author$project$TestScorer$testWater, $author$project$TestScorer$testAir, $author$project$TestScorer$testFire, $author$project$TestScorer$testEarth]),
-			$author$project$Scorer$sortByRemoval($author$project$TestScorer$testItemList));
 	});
 var $author$project$TestItem$testAir = 'air,fluid,+oxygen';
 var $author$project$TestItem$testCsv = 'fire,reaction,-oxygen,-fuel,-heat,+heat,+smoke\nwater,fluid,-cool,+moisture,,\nair,fluid,+oxygen,,,\nearth,solid,-smoke,-moisture,-oxygen,+fuel';
@@ -8091,11 +8048,11 @@ var $author$project$Test$Generated$Main$main = A2(
 	{
 		globs: _List_Nil,
 		paths: _List_fromArray(
-			['E:\\GitHub\\synergy_finder\\elm\\tests\\TestItem.elm', 'E:\\GitHub\\synergy_finder\\elm\\tests\\TestMain.elm', 'E:\\GitHub\\synergy_finder\\elm\\tests\\TestScorer.elm']),
+			['E:\\GitHub\\synergy_finder\\tests\\TestItem.elm', 'E:\\GitHub\\synergy_finder\\tests\\TestMain.elm', 'E:\\GitHub\\synergy_finder\\tests\\TestScorer.elm']),
 		processes: 8,
 		report: $author$project$Test$Reporter$Reporter$ConsoleReport($author$project$Console$Text$Monochrome),
 		runs: 100,
-		seed: 241171833475815
+		seed: 18133593833859
 	},
 	_List_fromArray(
 		[
@@ -8127,9 +8084,6 @@ var $author$project$Test$Generated$Main$main = A2(
 					$author$project$Test$Runner$Node$check($author$project$TestScorer$testEarth),
 					$author$project$Test$Runner$Node$check($author$project$TestScorer$testItemList),
 					$author$project$Test$Runner$Node$check($author$project$TestScorer$sortByMargin),
-					$author$project$Test$Runner$Node$check($author$project$TestScorer$sortByRemoval),
-					$author$project$Test$Runner$Node$check($author$project$TestScorer$getSynergy),
-					$author$project$Test$Runner$Node$check($author$project$TestScorer$scoreMargin),
 					$author$project$Test$Runner$Node$check($author$project$TestScorer$scoreRemoval),
 					$author$project$Test$Runner$Node$check($author$project$TestScorer$scoreList),
 					$author$project$Test$Runner$Node$check($author$project$TestScorer$scoreRemovalVerbose)
@@ -8138,7 +8092,7 @@ var $author$project$Test$Generated$Main$main = A2(
 _Platform_export({'Test':{'Generated':{'Main':{'init':$author$project$Test$Generated$Main$main($elm$json$Json$Decode$int)(0)}}}});}(this));
 return this.Elm;
 })({});
-var pipeFilename = "\\\\.\\pipe\\elm_test-5500-1";
+var pipeFilename = "\\\\.\\pipe\\elm_test-4368-1";
 var net = require('net'),
   client = net.createConnection(pipeFilename);
 
