@@ -72,7 +72,7 @@ type Msg
   = CsvRequested
   | CsvSelected File
   | CsvLoaded String
-  | Execute (App -> App)
+  | MoveItem Item
   | ShowSynergySummary Item
 
 
@@ -103,6 +103,13 @@ selectItem item app =
   |> (\old -> { old | selected = item :: old.selected })
 
 
+moveItem : Item -> App -> App
+moveItem item app =
+  if List.member item app.unselected
+    then selectItem item app
+    else unselectItem item app
+
+
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -122,15 +129,15 @@ update msg model =
       , Cmd.none
       )
 
-    Execute click_method ->
-      ( { model | app = click_method model.app }
+    MoveItem item ->
+      ( { model | app = moveItem item model.app }
       , Cmd.none
       )
 
     ShowSynergySummary item ->
       let old_app = model.app in
-      ( { model
-        | app = { old_app | summary = Just <| scoreRemovalVerbose item old_app.selected }
+      ( { model | app =
+          { old_app | summary = Just <| scoreRemovalVerbose item old_app.selected }
         }
       , Cmd.none
       )
@@ -169,14 +176,14 @@ loadCsvButton
     }
 
 
-tableItemElement : Item -> (Item -> App -> App) -> Element Msg
-tableItemElement item click_method =
+tableItemElement : Item -> Element Msg
+tableItemElement item =
   Input.button
     [ padding 5
     , width fill
     , Events.onMouseEnter <| ShowSynergySummary item
     ]
-    { onPress = Just (Execute (click_method item))
+    { onPress = Just (MoveItem item)
     , label = text item.name
     }
 
@@ -226,7 +233,7 @@ unselectedItemTable app =
       , columns =
         [ { header = none
           , width = fillPortion 3
-          , view = \item -> tableItemElement item selectItem
+          , view = \item -> tableItemElement item
           }
         , { header = none
           , width = fillPortion 1
@@ -254,7 +261,7 @@ selectedItemTable app =
       , columns =
         [ { header = none
           , width = fillPortion 3
-          , view = \item -> tableItemElement item unselectItem
+          , view = \item -> tableItemElement item
           }
         , { header = none
           , width = fillPortion 1
