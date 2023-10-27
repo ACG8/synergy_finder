@@ -157,7 +157,7 @@ color =
 
 attrTableBox =
   [ width fill
-  , height <| px 500
+  , height fill
   , Border.width 2
   , Border.rounded 6
   , Border.color color.blue
@@ -180,8 +180,14 @@ attrTableHeader =
   , Border.color color.blue
   ]
 
-
-
+rowTableHeader : List (String, Int) -> Element Msg
+rowTableHeader headers_list =
+  let
+    getElement (title, portion) =
+      el (( width <| fillPortion portion ) :: attrTableHeader) <| text title
+  in
+  row [ width fill ] <|
+    List.map getElement headers_list
 
 -- ELEMENTS
 
@@ -201,52 +207,44 @@ loadCsvButton
     }
 
 
-tableItemElement : Item -> Element Msg
-tableItemElement item =
-  Input.button
-    [ padding 5
-    , width fill
-    , Events.onMouseEnter <| ShowSynergySummary item
-    ]
-    { onPress = Just (MoveItem item)
-    , label = text item.name
-    }
-
-
-tableScoreElement : Item -> App -> Element Msg
-tableScoreElement item app =
-  el
-    [ padding 5
-    , alignRight
-    ]
-    <| text (String.fromInt <| Scorer.scoreRemoval item app.selected)
-
-
 tableSynergy : String -> List Item -> App -> Element Msg
 tableSynergy title target_items app =
   let
-    header =
-      row
-        [ width fill ]
-        [ el (( width <| fillPortion 3 ) :: attrTableHeader ) <| text title
-        , el (( width <| fillPortion 1 ) :: attrTableHeader ) <| text "Synergy"
+    itemView item =
+      Input.button
+        [ padding 5
+        , width fill
+        , Events.onMouseEnter <| ShowSynergySummary item
         ]
+        { onPress = Just (MoveItem item)
+        , label = text item.name
+        }
 
     item_name_column =
       { header = none
       , width = fillPortion 3
-      , view = \item -> tableItemElement item
+      , view = itemView
       }
+
+    synergyView item =
+      el
+        [ padding 5
+        , alignRight
+        ]
+        <| text (String.fromInt <| Scorer.scoreRemoval item app.selected)
 
     synergy_bonus_column =
       { header = none
       , width = fillPortion 1
-      , view = \item -> tableScoreElement item app
+      , view = synergyView
       }
   in
     column
       attrTableBox
-      [ header
+      [ rowTableHeader
+        [ (title, 3)
+        , ("Synergy", 1)
+        ]
       , table attrTable
         { data = Scorer.sortByMargin target_items app.selected
         , columns = [ item_name_column, synergy_bonus_column ]
@@ -264,40 +262,53 @@ itemTables app =
     , tableSynergy "Selected" app.selected app
     ]
 
-summaryTable : String -> List (String, Int) -> Element Msg
-summaryTable title scores =
-  table attrTable
-  { data = scores
-  , columns =
-    [ { header = text title
+
+tableSummary : String -> List (String, Int) -> Element Msg
+tableSummary title scores =
+  let
+    description_column =
+      { header = none
       , width = fillPortion 3
       , view = \score -> text <| Tuple.first score
       }
-    , { header = text "Synergy"
+
+    score_column =
+      { header = none
       , width = fillPortion 1
       , view = \score -> text (String.fromInt <| Tuple.second score)
       }
+  in
+  column
+    attrTableBox
+    [ rowTableHeader
+      [ (title, 3)
+      , ("Synergy", 1)
+      ]
+    , table attrTable
+      { data = scores
+      , columns = [ description_column, score_column ]
+      }
     ]
-  }
+
 
 summaryWindow : App -> Element Msg
 summaryWindow app =
   row
     [ width fill
-    , height fill
+    , height <| fillPortion 1
     , Border.width 2
     , Border.rounded 6
     , Border.color color.blue
     ]
     <| case app.summary of
       Nothing ->
-        [ summaryTable "Needs" []
-        , summaryTable "Offers" []
+        [ tableSummary "Needs" []
+        , tableSummary "Offers" []
         ]
 
       Just summary ->
-        [ summaryTable "Needs" summary.needs
-        , summaryTable "Offers" summary.offers
+        [ tableSummary "Needs" summary.needs
+        , tableSummary "Offers" summary.offers
         ]
 
 
