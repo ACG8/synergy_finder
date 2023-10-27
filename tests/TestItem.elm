@@ -11,8 +11,7 @@ import Set exposing (Set)
 testCsv = """fire,reaction,element,-oxygen,-fuel,-heat,+heat,+smoke
 water,fluid,element,-cool,+moisture,,
 air,fluid,element,+oxygen,,,
-earth,solid,element,-smoke,-moisture,-oxygen,+fuel
-oil,fluid"""
+earth,solid,element,-smoke,-moisture,-oxygen,+fuel"""
 
 
 testFire = "fire,reaction,element,-oxygen,-fuel,-heat,+heat,+smoke"
@@ -55,8 +54,17 @@ toItemList =
                   , needs = ["smoke", "moisture", "oxygen"]
                   , offers = ["fuel"]
                 }
-                , Item "oil" ["fluid"] [] []
                 ]
+
+
+listToItemFilter =
+    test "listToItemFilter should contain correct ItemFilter" <|
+        \_ -> Item.toItemList testCsv
+            |> Item.listToItemFilter
+            |> Expect.equal
+                { tags = Set.fromList ["reaction", "element", "fluid", "solid"]
+                , bonds = Set.fromList ["oxygen", "fuel", "heat", "smoke", "cool", "moisture"]
+            }
 
 
 getTagsFromList =
@@ -67,7 +75,7 @@ getTagsFromList =
         |> Expect.equal (Set.fromList ["reaction", "element", "fluid", "solid"])
 
 
-partitionByTags =
+partitionByFilter =
     let
         fire = Item "fire" ["reaction", "element"] ["oxygen", "fuel", "heat"] ["heat", "smoke"]
 
@@ -76,12 +84,10 @@ partitionByTags =
         air = Item "air" ["fluid", "element"] [] ["oxygen"]
 
         earth = Item "earth" ["solid", "element"] ["smoke", "moisture", "oxygen"] ["fuel"]
-
-        oil = Item "oil" ["fluid"] [] []
     in
     test "item list should be split into items with ALL tags and items without" <|
     \_ ->
 
         Item.toItemList testCsv
-        |> Item.partitionByTags ["fluid", "element"]
-        |> Expect.equal ([water, air], [fire, earth, oil])
+        |> Item.partitionByFilter ["fluid", "oxygen"]
+        |> Expect.equal ([air], [fire, water, earth])

@@ -2922,7 +2922,7 @@ var $elm_explorations$test$Test$test = F2(
 						]);
 				}));
 	});
-var $author$project$TestItem$testCsv = 'fire,reaction,element,-oxygen,-fuel,-heat,+heat,+smoke\nwater,fluid,element,-cool,+moisture,,\nair,fluid,element,+oxygen,,,\nearth,solid,element,-smoke,-moisture,-oxygen,+fuel\noil,fluid';
+var $author$project$TestItem$testCsv = 'fire,reaction,element,-oxygen,-fuel,-heat,+heat,+smoke\nwater,fluid,element,-cool,+moisture,,\nair,fluid,element,+oxygen,,,\nearth,solid,element,-smoke,-moisture,-oxygen,+fuel';
 var $elm$core$Basics$add = _Basics_add;
 var $elm$core$Basics$gt = _Utils_gt;
 var $elm$core$List$reverse = function (list) {
@@ -3471,6 +3471,60 @@ var $elm$core$Result$isOk = function (result) {
 	}
 };
 var $elm$json$Json$Decode$int = _Json_decodeInt;
+var $author$project$Item$ItemFilter = F2(
+	function (tags, bonds) {
+		return {bonds: bonds, tags: tags};
+	});
+var $author$project$Item$listToItemFilter = function (item_list) {
+	var getTags = function (items) {
+		if (!items.b) {
+			return $elm$core$Set$empty;
+		} else {
+			var head = items.a;
+			var tail = items.b;
+			return A2(
+				$elm$core$Set$union,
+				$elm$core$Set$fromList(head.tags),
+				$author$project$Item$getTagsFromList(tail));
+		}
+	};
+	var getBonds = function (items) {
+		if (!items.b) {
+			return $elm$core$Set$empty;
+		} else {
+			var head = items.a;
+			var tail = items.b;
+			return A2(
+				$elm$core$Set$union,
+				getBonds(tail),
+				A2(
+					$elm$core$Set$union,
+					$elm$core$Set$fromList(head.offers),
+					$elm$core$Set$fromList(head.needs)));
+		}
+	};
+	return A2(
+		$author$project$Item$ItemFilter,
+		getTags(item_list),
+		getBonds(item_list));
+};
+var $author$project$TestItem$listToItemFilter = A2(
+	$elm_explorations$test$Test$test,
+	'listToItemFilter should contain correct ItemFilter',
+	function (_v0) {
+		return A2(
+			$elm_explorations$test$Expect$equal,
+			{
+				bonds: $elm$core$Set$fromList(
+					_List_fromArray(
+						['oxygen', 'fuel', 'heat', 'smoke', 'cool', 'moisture'])),
+				tags: $elm$core$Set$fromList(
+					_List_fromArray(
+						['reaction', 'element', 'fluid', 'solid']))
+			},
+			$author$project$Item$listToItemFilter(
+				$author$project$Item$toItemList($author$project$TestItem$testCsv)));
+	});
 var $author$project$Item$Item = F4(
 	function (name, tags, needs, offers) {
 		return {name: name, needs: needs, offers: offers, tags: tags};
@@ -3523,7 +3577,7 @@ var $elm$core$List$partition = F2(
 			_Utils_Tuple2(_List_Nil, _List_Nil),
 			list);
 	});
-var $author$project$Item$partitionByTags = F2(
+var $author$project$Item$partitionByFilter = F2(
 	function (tag_list, item_list) {
 		var matchesTags = F2(
 			function (tags, item) {
@@ -3532,7 +3586,12 @@ var $author$project$Item$partitionByTags = F2(
 				} else {
 					var t = tags.a;
 					var ts = tags.b;
-					return A2($elm$core$List$member, t, item.tags) && A2(matchesTags, ts, item);
+					return A2(
+						$elm$core$List$member,
+						t,
+						_Utils_ap(
+							item.tags,
+							_Utils_ap(item.needs, item.offers))) && A2(matchesTags, ts, item);
 				}
 			});
 		return A2(
@@ -3540,7 +3599,7 @@ var $author$project$Item$partitionByTags = F2(
 			matchesTags(tag_list),
 			item_list);
 	});
-var $author$project$TestItem$partitionByTags = function () {
+var $author$project$TestItem$partitionByFilter = function () {
 	var water = A4(
 		$author$project$Item$Item,
 		'water',
@@ -3550,13 +3609,6 @@ var $author$project$TestItem$partitionByTags = function () {
 			['cool']),
 		_List_fromArray(
 			['moisture']));
-	var oil = A4(
-		$author$project$Item$Item,
-		'oil',
-		_List_fromArray(
-			['fluid']),
-		_List_Nil,
-		_List_Nil);
 	var fire = A4(
 		$author$project$Item$Item,
 		'fire',
@@ -3591,13 +3643,13 @@ var $author$project$TestItem$partitionByTags = function () {
 				$elm_explorations$test$Expect$equal,
 				_Utils_Tuple2(
 					_List_fromArray(
-						[water, air]),
+						[air]),
 					_List_fromArray(
-						[fire, earth, oil])),
+						[fire, water, earth])),
 				A2(
-					$author$project$Item$partitionByTags,
+					$author$project$Item$partitionByFilter,
 					_List_fromArray(
-						['fluid', 'element']),
+						['fluid', 'oxygen']),
 					$author$project$Item$toItemList($author$project$TestItem$testCsv)));
 		});
 }();
@@ -8153,14 +8205,7 @@ var $author$project$TestItem$toItemList = A2(
 						['fuel']),
 					tags: _List_fromArray(
 						['solid', 'element'])
-				},
-					A4(
-					$author$project$Item$Item,
-					'oil',
-					_List_fromArray(
-						['fluid']),
-					_List_Nil,
-					_List_Nil)
+				}
 				]),
 			$author$project$Item$toItemList($author$project$TestItem$testCsv));
 	});
@@ -8173,7 +8218,7 @@ var $author$project$Test$Generated$Main$main = A2(
 		processes: 8,
 		report: $author$project$Test$Reporter$Reporter$ConsoleReport($author$project$Console$Text$Monochrome),
 		runs: 100,
-		seed: 244435804404836
+		seed: 36452772960305
 	},
 	_List_fromArray(
 		[
@@ -8185,8 +8230,9 @@ var $author$project$Test$Generated$Main$main = A2(
 					$author$project$Test$Runner$Node$check($author$project$TestItem$testFire),
 					$author$project$Test$Runner$Node$check($author$project$TestItem$toItem),
 					$author$project$Test$Runner$Node$check($author$project$TestItem$toItemList),
+					$author$project$Test$Runner$Node$check($author$project$TestItem$listToItemFilter),
 					$author$project$Test$Runner$Node$check($author$project$TestItem$getTagsFromList),
-					$author$project$Test$Runner$Node$check($author$project$TestItem$partitionByTags)
+					$author$project$Test$Runner$Node$check($author$project$TestItem$partitionByFilter)
 				])),
 			_Utils_Tuple2(
 			'TestMain',
@@ -8212,7 +8258,7 @@ var $author$project$Test$Generated$Main$main = A2(
 _Platform_export({'Test':{'Generated':{'Main':{'init':$author$project$Test$Generated$Main$main($elm$json$Json$Decode$int)(0)}}}});}(this));
 return this.Elm;
 })({});
-var pipeFilename = "\\\\.\\pipe\\elm_test-18036-1";
+var pipeFilename = "\\\\.\\pipe\\elm_test-20576-1";
 var net = require('net'),
   client = net.createConnection(pipeFilename);
 

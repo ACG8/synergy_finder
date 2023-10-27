@@ -14,7 +14,7 @@ main =
     Test.Runner.Node.run
         { runs = 100
         , report = ConsoleReport Monochrome
-        , seed = 244435804404836
+        , seed = 36452772960305
         , processes = 8
         , globs =
             []
@@ -29,8 +29,9 @@ main =
             , Test.Runner.Node.check TestItem.testFire
             , Test.Runner.Node.check TestItem.toItem
             , Test.Runner.Node.check TestItem.toItemList
+            , Test.Runner.Node.check TestItem.listToItemFilter
             , Test.Runner.Node.check TestItem.getTagsFromList
-            , Test.Runner.Node.check TestItem.partitionByTags
+            , Test.Runner.Node.check TestItem.partitionByFilter
             ]
           )
         , ( "TestMain"

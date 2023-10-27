@@ -118,7 +118,7 @@ moveItem item app =
 filterItems : App -> App
 filterItems app =
   app.hidden ++ app.unselected
-  |> Item.partitionByTags app.active_filters
+  |> Item.partitionByFilter app.active_filters
   |> \partitioned_items ->
     { app
     | unselected = Tuple.first partitioned_items
@@ -199,6 +199,7 @@ attrTable =
   , width <| fillPortion 1
   , Background.color <| color.lightBlue
   , Font.color <| color.darkCharcoal
+  , Font.size 16
   , Border.width 5
   , padding 10
   , scrollbarY
@@ -260,7 +261,7 @@ tableSynergy title target_items app =
     synergyView item =
       el
         [ padding 5
-        , alignRight
+        , Font.alignRight
         ]
         <| text (String.fromInt <| Scorer.scoreRemoval item app.selected)
 
@@ -306,7 +307,7 @@ tableSummary title scores =
     score_column =
       { header = none
       , width = fillPortion 1
-      , view = \score -> text (String.fromInt <| Tuple.second score)
+      , view = \score -> el [ Font.alignRight ] <| text (String.fromInt <| Tuple.second score)
       }
   in
   column
@@ -327,9 +328,6 @@ summaryWindow app =
   row
     [ width fill
     , height <| fillPortion 1
-    , Border.width 2
-    , Border.rounded 6
-    , Border.color color.blue
     ]
     <| case app.summary of
       Nothing ->
@@ -346,6 +344,16 @@ summaryWindow app =
 filterBar : App -> Element Msg
 filterBar app =
   let
+    attrfilterBar =
+      [ height fill
+      , width <| fillPortion 1
+      , paddingXY 0 10
+      , scrollbarY
+      , Background.color color.darkCharcoal
+      , Font.color color.white
+      , Font.size 16
+      ]
+
     attrButtonExtra tag =
       if List.member tag app.active_filters
         then [ Background.color color.orange ]
@@ -356,22 +364,32 @@ filterBar app =
       |> (++) (attrButtonExtra tag)
 
 
-    tagButton tag =
+    tagButton filter_key =
       Input.button
-        (attrButton tag)
-        { onPress = Just (ToggleFilter tag)
-        , label = text tag
+        (attrButton filter_key)
+        { onPress = Just (ToggleFilter filter_key)
+        , label = text filter_key
         }
+
+    item_filter =
+      app.unselected ++ app.hidden
+      |> Item.listToItemFilter
+
+    buttonListTags =
+      item_filter.tags
+      |> Set.toList
+      |> List.map tagButton
+
+    buttonListBonds =
+      item_filter.bonds
+      |> Set.toList
+      |> List.map tagButton
   in
   column
-    [ height fill
-    , width <| fillPortion 1
-    , paddingXY 0 10
-    , scrollbarY
-    , Background.color color.darkCharcoal
-    , Font.color color.white
+    attrfilterBar
+    [ column [ height fill ] buttonListTags
+    , column [ height fill ] buttonListBonds
     ]
-    <| List.map tagButton (Set.toList <| Item.getTagsFromList <| app.unselected ++ app.hidden)
 
 
 -- PAGES

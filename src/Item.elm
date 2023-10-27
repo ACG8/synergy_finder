@@ -1,4 +1,4 @@
-module Item exposing (Item, toItem, toItemList, partitionByTags, getTagsFromList)
+module Item exposing (..)
 
 import Set exposing (Set)
 
@@ -10,8 +10,8 @@ type alias Item =
   }
 
 
-partitionByTags : List String -> List Item -> (List Item, List Item)
-partitionByTags tag_list item_list =
+partitionByFilter : List String -> List Item -> (List Item, List Item)
+partitionByFilter tag_list item_list =
   let
     matchesTags tags item =
       case tags of
@@ -19,7 +19,7 @@ partitionByTags tag_list item_list =
           True
 
         t :: ts ->
-          (List.member t item.tags) && (matchesTags ts item)
+          ( List.member t <| item.tags ++ item.needs ++ item.offers ) && (matchesTags ts item)
   in
   List.partition (matchesTags tag_list) item_list
 
@@ -66,6 +66,37 @@ toItem csv_line =
             , needs = getNeeds xs
             , offers = getOffers xs
             }
+
+type alias ItemFilter =
+  { tags : Set String
+  , bonds : Set String
+  }
+
+
+listToItemFilter : List Item -> ItemFilter
+listToItemFilter item_list =
+  let
+    getTags items =
+      case items of
+        [] ->
+          Set.empty
+
+        head :: tail ->
+          Set.union (Set.fromList head.tags) <| getTagsFromList tail
+
+    getBonds items =
+      case items of
+        [] ->
+          Set.empty
+
+        head :: tail ->
+          Set.fromList head.needs
+          |> Set.union (Set.fromList head.offers)
+          |> Set.union (getBonds tail)
+  in
+  ItemFilter (getTags item_list) <| getBonds item_list
+
+
 
 
 getTagsFromList : List Item -> Set String
