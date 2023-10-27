@@ -144,7 +144,6 @@ update msg model =
 
 -- STYLE
 
-
 color =
     { blue = rgb255 0x72 0x9F 0xCF
     , darkCharcoal = rgb255 0x2E 0x34 0x36
@@ -156,9 +155,35 @@ color =
     , white = rgb255 0xFF 0xFF 0xFF
     }
 
+attrTableBox =
+  [ width fill
+  , height <| px 500
+  , Border.width 2
+  , Border.rounded 6
+  , Border.color color.blue
+  ]
+
+attrTable =
+  [ height fill
+  , width <| fillPortion 1
+  , Background.color <| color.lightBlue
+  , Font.color <| color.darkCharcoal
+  , Border.width 5
+  , padding 10
+  , scrollbarY
+  ]
+
+attrTableHeader =
+  [ Font.bold
+  , Font.color color.darkCharcoal
+  , Border.widthEach { bottom = 2, top = 0, left = 0, right = 0 }
+  , Border.color color.blue
+  ]
+
+
+
 
 -- ELEMENTS
-
 
 loadCsvButton
   = Input.button
@@ -196,81 +221,37 @@ tableScoreElement item app =
     ]
     <| text (String.fromInt <| Scorer.scoreRemoval item app.selected)
 
-tableBoxAttr =
-  [ width fill
-  , height <| px 500
-  , Border.width 2
-  , Border.rounded 6
-  , Border.color color.blue
-  ]
 
-tableAttr =
-  [ height fill
-  , width <| fillPortion 1
-  , Background.color <| color.lightBlue
-  , Font.color <| color.darkCharcoal
-  , Border.width 5
-  , padding 10
-  , scrollbarY
-  ]
-
-tableHeaderAttr =
-  [ Font.bold
-  , Font.color color.darkCharcoal
-  , Border.widthEach { bottom = 2, top = 0, left = 0, right = 0 }
-  , Border.color color.blue
-  ]
-
-
-unselectedItemTable : App -> Element Msg
-unselectedItemTable app =
-  column tableBoxAttr
-    [ row [ width fill ] <|
-      [ el (( width <| fillPortion 3 ) :: tableHeaderAttr ) <| text "Unselected"
-      , el (( width <| fillPortion 1 ) :: tableHeaderAttr ) <| text "Synergy" ]
-    , table tableAttr
-      { data = Scorer.sortByMargin app.unselected app.selected
-      , columns =
-        [ { header = none
-          , width = fillPortion 3
-          , view = \item -> tableItemElement item
-          }
-        , { header = none
-          , width = fillPortion 1
-          , view = \item -> tableScoreElement item app
-          }
-
+tableSynergy : String -> List Item -> App -> Element Msg
+tableSynergy title target_items app =
+  let
+    header =
+      row
+        [ width fill ]
+        [ el (( width <| fillPortion 3 ) :: attrTableHeader ) <| text title
+        , el (( width <| fillPortion 1 ) :: attrTableHeader ) <| text "Synergy"
         ]
+
+    item_name_column =
+      { header = none
+      , width = fillPortion 3
+      , view = \item -> tableItemElement item
       }
-    ]
 
-
-selectedItemTable : App -> Element Msg
-selectedItemTable app =
-  column tableBoxAttr
-    [ row [ width fill ] <|
-      [ el (( width <| fillPortion 3 ) :: tableHeaderAttr ) <| text "Selected"
-      , el (( width <| fillPortion 1 ) :: tableHeaderAttr ) <|
-        ("Synergy ({{ score }})"
-                |> Format.namedValue "score"
-                  (String.fromInt <| Scorer.scoreList app.selected)
-                |> text )
+    synergy_bonus_column =
+      { header = none
+      , width = fillPortion 1
+      , view = \item -> tableScoreElement item app
+      }
+  in
+    column
+      attrTableBox
+      [ header
+      , table attrTable
+        { data = Scorer.sortByMargin target_items app.selected
+        , columns = [ item_name_column, synergy_bonus_column ]
+        }
       ]
-    , table tableAttr
-      { data = Scorer.sortByRemoval app.selected
-      , columns =
-        [ { header = none
-          , width = fillPortion 3
-          , view = \item -> tableItemElement item
-          }
-        , { header = none
-          , width = fillPortion 1
-          , view = \item -> tableScoreElement item app
-          }
-
-        ]
-      }
-    ]
 
 
 itemTables : App -> Element Msg
@@ -279,13 +260,13 @@ itemTables app =
     [ height <| fillPortion 2
     , width fill
     ]
-    [ unselectedItemTable app
-    , selectedItemTable app
+    [ tableSynergy "Unselected" app.unselected app
+    , tableSynergy "Selected" app.selected app
     ]
 
 summaryTable : String -> List (String, Int) -> Element Msg
 summaryTable title scores =
-  table tableAttr
+  table attrTable
   { data = scores
   , columns =
     [ { header = text title

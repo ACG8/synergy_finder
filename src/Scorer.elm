@@ -6,7 +6,7 @@ import Item exposing (..)
 
 sortByMargin : List Item -> List Item -> List Item
 sortByMargin target_list reference_list =
-  List.sortBy (\x -> scoreMargin x reference_list) target_list
+  List.sortBy (\x -> scoreRemoval x reference_list) target_list
   |> List.reverse
 
 
