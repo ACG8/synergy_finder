@@ -7798,6 +7798,106 @@ var $author$project$TestScorer$scoreRemoval = A2(
 			3,
 			A2($author$project$Scorer$scoreRemoval, $author$project$TestScorer$testFire, $author$project$TestScorer$testItemList));
 	});
+var $author$project$Scorer$scoreNeedsVerbose = F2(
+	function (item, item_list) {
+		var _v0 = item.needs;
+		if (!_v0.b) {
+			return _List_Nil;
+		} else {
+			var x = _v0.a;
+			var xs = _v0.b;
+			return function (sum) {
+				return A2(
+					$elm$core$List$cons,
+					_Utils_Tuple2(x, sum),
+					A2(
+						$author$project$Scorer$scoreNeedsVerbose,
+						_Utils_update(
+							item,
+							{needs: xs}),
+						item_list));
+			}(
+				A3(
+					$elm$core$List$foldl,
+					$elm$core$Basics$add,
+					0,
+					A2(
+						$elm$core$List$map,
+						function (candidate_item) {
+							return A2($elm$core$List$member, x, candidate_item.offers) ? 1 : 0;
+						},
+						item_list)));
+		}
+	});
+var $author$project$Scorer$scoreOffersVerbose = F2(
+	function (item, item_list) {
+		var _v0 = item.offers;
+		if (!_v0.b) {
+			return _List_Nil;
+		} else {
+			var x = _v0.a;
+			var xs = _v0.b;
+			return function (sum) {
+				return A2(
+					$elm$core$List$cons,
+					_Utils_Tuple2(x, sum),
+					A2(
+						$author$project$Scorer$scoreOffersVerbose,
+						_Utils_update(
+							item,
+							{offers: xs}),
+						item_list));
+			}(
+				A3(
+					$elm$core$List$foldl,
+					$elm$core$Basics$add,
+					0,
+					A2(
+						$elm$core$List$map,
+						function (candidate_item) {
+							return A2($elm$core$List$member, x, candidate_item.needs) ? 1 : 0;
+						},
+						item_list)));
+		}
+	});
+var $author$project$Scorer$scoreRemovalVerbose = F2(
+	function (item, item_list) {
+		return function (other_items) {
+			return {
+				name: item.name,
+				needs: A2($author$project$Scorer$scoreNeedsVerbose, item, other_items),
+				offers: A2($author$project$Scorer$scoreOffersVerbose, item, other_items)
+			};
+		}(
+			A2(
+				$elm$core$List$filter,
+				function (x) {
+					return !_Utils_eq(x, item);
+				},
+				item_list));
+	});
+var $author$project$TestScorer$scoreRemovalVerbose = A2(
+	$elm_explorations$test$Test$test,
+	'scoreRemovalVerbose should list amount of points for each synergy',
+	function (_v0) {
+		return A2(
+			$elm_explorations$test$Expect$equal,
+			{
+				name: 'fire',
+				needs: _List_fromArray(
+					[
+						_Utils_Tuple2('oxygen', 1),
+						_Utils_Tuple2('fuel', 1),
+						_Utils_Tuple2('heat', 0)
+					]),
+				offers: _List_fromArray(
+					[
+						_Utils_Tuple2('heat', 0),
+						_Utils_Tuple2('smoke', 1)
+					])
+			},
+			A2($author$project$Scorer$scoreRemovalVerbose, $author$project$TestScorer$testFire, $author$project$TestScorer$testItemList));
+	});
 var $author$project$Scorer$sortByMargin = F2(
 	function (target_list, reference_list) {
 		return $elm$core$List$reverse(
@@ -7995,7 +8095,7 @@ var $author$project$Test$Generated$Main$main = A2(
 		processes: 8,
 		report: $author$project$Test$Reporter$Reporter$ConsoleReport($author$project$Console$Text$Monochrome),
 		runs: 100,
-		seed: 2172894573046
+		seed: 241171833475815
 	},
 	_List_fromArray(
 		[
@@ -8031,13 +8131,14 @@ var $author$project$Test$Generated$Main$main = A2(
 					$author$project$Test$Runner$Node$check($author$project$TestScorer$getSynergy),
 					$author$project$Test$Runner$Node$check($author$project$TestScorer$scoreMargin),
 					$author$project$Test$Runner$Node$check($author$project$TestScorer$scoreRemoval),
-					$author$project$Test$Runner$Node$check($author$project$TestScorer$scoreList)
+					$author$project$Test$Runner$Node$check($author$project$TestScorer$scoreList),
+					$author$project$Test$Runner$Node$check($author$project$TestScorer$scoreRemovalVerbose)
 				]))
 		]));
 _Platform_export({'Test':{'Generated':{'Main':{'init':$author$project$Test$Generated$Main$main($elm$json$Json$Decode$int)(0)}}}});}(this));
 return this.Elm;
 })({});
-var pipeFilename = "\\\\.\\pipe\\elm_test-3940-1";
+var pipeFilename = "\\\\.\\pipe\\elm_test-5500-1";
 var net = require('net'),
   client = net.createConnection(pipeFilename);
 

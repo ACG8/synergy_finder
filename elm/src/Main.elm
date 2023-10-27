@@ -9,7 +9,7 @@ import Task
 import Element exposing (..)
 import Element.Background as Background
 import Element.Border as Border
-import Element.Events exposing (..)
+import Element.Events as Events
 import Element.Font as Font
 import Element.Input as Input
 
@@ -35,6 +35,7 @@ type alias App =
   { hidden : List Item
   , unselected : List Item
   , selected : List Item
+  , summary : Maybe SynergySummary
   }
 
 type alias Model = Maybe App
@@ -48,6 +49,7 @@ toModel csv =
       { hidden = []
       , unselected = xs
       , selected = []
+      , summary = Nothing
       }
 
 
@@ -63,6 +65,7 @@ type Msg
   | CsvSelected File
   | CsvLoaded String
   | Execute (App -> App)
+  | ShowSynergySummary Item
 
 
 clearItem : Item -> App -> App
@@ -70,6 +73,7 @@ clearItem item app =
   { hidden = List.filter (\x -> x /= item) app.hidden
   , unselected = List.filter (\x -> x /= item) app.unselected
   , selected = List.filter (\x -> x /= item) app.selected
+  , summary = Nothing
   }
 
 
@@ -120,6 +124,17 @@ update msg model =
           , Cmd.none
           )
 
+    ShowSynergySummary item ->
+      case model of
+        Nothing ->
+          (Nothing, Cmd.none)
+
+        Just app ->
+          ( Just { app | summary = Just <| scoreRemovalVerbose item app.selected }
+          , Cmd.none
+          )
+
+
 
 -- ELEMENTS
 
@@ -155,6 +170,7 @@ tableItemElement item click_method =
   Input.button
     [ padding 5
     , width fill
+    , Events.onMouseEnter <| ShowSynergySummary item
     ]
     { onPress = Just (Execute (click_method item))
     , label = text item.name
@@ -171,7 +187,7 @@ tableScoreElement item app =
 
 tableBoxAttr =
   [ width fill
-  , height <| px 600
+  , height <| px 500
   , Border.width 2
   , Border.rounded 6
   , Border.color color.blue
@@ -245,6 +261,7 @@ selectedItemTable app =
       }
     ]
 
+
 itemTables : App -> Element Msg
 itemTables app =
   row
@@ -254,6 +271,41 @@ itemTables app =
     [ unselectedItemTable app
     , selectedItemTable app
     ]
+
+summaryTable : String -> List (String, Int) -> Element Msg
+summaryTable title scores =
+  table tableAttr
+  { data = scores
+  , columns =
+    [ { header = text title
+      , width = fillPortion 3
+      , view = \score -> text <| Tuple.first score
+      }
+    , { header = text "Synergy"
+      , width = fillPortion 1
+      , view = \score -> text (String.fromInt <| Tuple.second score)
+      }
+    ]
+  }
+
+summaryWindow : App -> Element Msg
+summaryWindow app =
+  row
+    [ width fill
+    , height fill
+    , Border.width 2
+    , Border.rounded 6
+    , Border.color color.blue
+    ]
+    <| case app.summary of
+      Nothing ->
+        []
+
+      Just summary ->
+        [ summaryTable "Needs" summary.needs
+        , summaryTable "Offers" summary.offers
+        ]
+
 
 
 -- VIEW
@@ -267,9 +319,9 @@ view model =
     Just app ->
       layout [ width fill, height fill ]
         <| column
-          [ width fill, height fill, padding 10, spacing 10 ]
+          [ width fill, height fill, padding 5, spacing 10 ]
           [ itemTables app
-          , el [width fill, height fill] <| text "foo"
+          , summaryWindow app
           ]
 
 

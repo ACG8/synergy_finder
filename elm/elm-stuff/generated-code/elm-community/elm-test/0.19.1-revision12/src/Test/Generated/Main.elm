@@ -14,7 +14,7 @@ main =
     Test.Runner.Node.run
         { runs = 100
         , report = ConsoleReport Monochrome
-        , seed = 2172894573046
+        , seed = 241171833475815
         , processes = 8
         , globs =
             []
@@ -50,6 +50,7 @@ main =
             , Test.Runner.Node.check TestScorer.scoreMargin
             , Test.Runner.Node.check TestScorer.scoreRemoval
             , Test.Runner.Node.check TestScorer.scoreList
+            , Test.Runner.Node.check TestScorer.scoreRemovalVerbose
             ]
           )
         ]

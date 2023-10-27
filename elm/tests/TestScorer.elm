@@ -71,10 +71,28 @@ scoreRemoval =
             |> Expect.equal 3
 
 
-
 scoreList =
     test "scoreList should add up all synergies in list" <|
         \_ ->
             testItemList
             |> Scorer.scoreList
             |> Expect.equal 5
+
+
+scoreRemovalVerbose =
+    test "scoreRemovalVerbose should list amount of points for each synergy" <|
+        \_ ->
+            testItemList
+            |> Scorer.scoreRemovalVerbose testFire
+            |> Expect.equal
+                { name = "fire"
+                , needs =
+                    [ ("oxygen", 1)
+                    , ("fuel", 1)
+                    , ("heat", 0)
+                    ]
+                , offers =
+                    [ ("heat", 0)
+                    , ("smoke", 1)
+                    ]
+                }
