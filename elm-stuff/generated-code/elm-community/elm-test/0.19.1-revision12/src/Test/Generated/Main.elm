@@ -14,7 +14,7 @@ main =
     Test.Runner.Node.run
         { runs = 100
         , report = ConsoleReport Monochrome
-        , seed = 301208339380954
+        , seed = 295898585542869
         , processes = 8
         , globs =
             []
@@ -27,11 +27,9 @@ main =
         [ ( "TestItem"
           , [ Test.Runner.Node.check TestItem.testCsv
             , Test.Runner.Node.check TestItem.testFire
-            , Test.Runner.Node.check TestItem.testWater
-            , Test.Runner.Node.check TestItem.testAir
-            , Test.Runner.Node.check TestItem.testEarth
             , Test.Runner.Node.check TestItem.toItem
             , Test.Runner.Node.check TestItem.toItemList
+            , Test.Runner.Node.check TestItem.partitionByTags
             ]
           )
         , ( "TestMain"

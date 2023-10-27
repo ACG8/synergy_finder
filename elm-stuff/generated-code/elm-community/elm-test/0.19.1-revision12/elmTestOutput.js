@@ -3003,17 +3003,101 @@ var $elm$core$Result$isOk = function (result) {
 	}
 };
 var $elm$json$Json$Decode$int = _Json_decodeInt;
-var $author$project$Test$Runner$Node$Receive = function (a) {
-	return {$: 'Receive', a: a};
+var $author$project$Item$Item = F4(
+	function (name, tags, needs, offers) {
+		return {name: name, needs: needs, offers: offers, tags: tags};
+	});
+var $elm_explorations$test$Test$Runner$Failure$Equality = F2(
+	function (a, b) {
+		return {$: 'Equality', a: a, b: b};
+	});
+var $elm$core$String$contains = _String_contains;
+var $elm_explorations$test$Test$Runner$Failure$Custom = {$: 'Custom'};
+var $elm_explorations$test$Test$Expectation$Fail = function (a) {
+	return {$: 'Fail', a: a};
 };
-var $elm_explorations$test$Test$Runner$Failure$DuplicatedName = {$: 'DuplicatedName'};
-var $elm_explorations$test$Test$Internal$ElmTestVariant__Batch = function (a) {
-	return {__elmTestSymbol: __elmTestSymbol, $: 'ElmTestVariant__Batch', a: a};
+var $elm_explorations$test$Test$Distribution$NoDistribution = {$: 'NoDistribution'};
+var $elm_explorations$test$Test$Expectation$fail = function (_v0) {
+	var description = _v0.description;
+	var reason = _v0.reason;
+	return $elm_explorations$test$Test$Expectation$Fail(
+		{description: description, distributionReport: $elm_explorations$test$Test$Distribution$NoDistribution, given: $elm$core$Maybe$Nothing, reason: reason});
 };
-var $elm_explorations$test$Test$Runner$Failure$EmptyList = {$: 'EmptyList'};
-var $elm_explorations$test$Test$Runner$Failure$Invalid = function (a) {
-	return {$: 'Invalid', a: a};
+var $elm_explorations$test$Expect$fail = function (str) {
+	return $elm_explorations$test$Test$Expectation$fail(
+		{description: str, reason: $elm_explorations$test$Test$Runner$Failure$Custom});
 };
+var $elm$core$Basics$not = _Basics_not;
+var $elm_explorations$test$Test$Expectation$Pass = function (a) {
+	return {$: 'Pass', a: a};
+};
+var $elm_explorations$test$Expect$pass = $elm_explorations$test$Test$Expectation$Pass(
+	{distributionReport: $elm_explorations$test$Test$Distribution$NoDistribution});
+var $elm_explorations$test$Test$Internal$toString = _Debug_toString;
+var $elm_explorations$test$Expect$testWith = F5(
+	function (makeReason, label, runTest, expected, actual) {
+		return A2(runTest, actual, expected) ? $elm_explorations$test$Expect$pass : $elm_explorations$test$Test$Expectation$fail(
+			{
+				description: label,
+				reason: A2(
+					makeReason,
+					$elm_explorations$test$Test$Internal$toString(expected),
+					$elm_explorations$test$Test$Internal$toString(actual))
+			});
+	});
+var $elm$core$String$toFloat = _String_toFloat;
+var $elm$core$String$toInt = _String_toInt;
+var $elm_explorations$test$Expect$equateWith = F4(
+	function (reason, comparison, b, a) {
+		var isJust = function (x) {
+			if (x.$ === 'Just') {
+				return true;
+			} else {
+				return false;
+			}
+		};
+		var isFloat = function (x) {
+			return isJust(
+				$elm$core$String$toFloat(x)) && (!isJust(
+				$elm$core$String$toInt(x)));
+		};
+		var usesFloats = isFloat(
+			$elm_explorations$test$Test$Internal$toString(a)) || isFloat(
+			$elm_explorations$test$Test$Internal$toString(b));
+		var floatError = A2($elm$core$String$contains, reason, 'not') ? 'Do not use Expect.notEqual with floats. Use Expect.notWithin instead.' : 'Do not use Expect.equal with floats. Use Expect.within instead.';
+		return usesFloats ? $elm_explorations$test$Expect$fail(floatError) : A5($elm_explorations$test$Expect$testWith, $elm_explorations$test$Test$Runner$Failure$Equality, reason, comparison, b, a);
+	});
+var $elm_explorations$test$Expect$equal = A2($elm_explorations$test$Expect$equateWith, 'Expect.equal', $elm$core$Basics$eq);
+var $elm$core$List$any = F2(
+	function (isOkay, list) {
+		any:
+		while (true) {
+			if (!list.b) {
+				return false;
+			} else {
+				var x = list.a;
+				var xs = list.b;
+				if (isOkay(x)) {
+					return true;
+				} else {
+					var $temp$isOkay = isOkay,
+						$temp$list = xs;
+					isOkay = $temp$isOkay;
+					list = $temp$list;
+					continue any;
+				}
+			}
+		}
+	});
+var $elm$core$List$member = F2(
+	function (x, xs) {
+		return A2(
+			$elm$core$List$any,
+			function (a) {
+				return _Utils_eq(a, x);
+			},
+			xs);
+	});
 var $elm$core$List$foldrHelper = F4(
 	function (fn, acc, ctr, ls) {
 		if (!ls.b) {
@@ -3069,17 +3153,126 @@ var $elm$core$List$foldr = F3(
 	function (fn, acc, ls) {
 		return A4($elm$core$List$foldrHelper, fn, acc, 0, ls);
 	});
-var $elm$core$List$append = F2(
-	function (xs, ys) {
-		if (!ys.b) {
-			return xs;
+var $elm$core$List$partition = F2(
+	function (pred, list) {
+		var step = F2(
+			function (x, _v0) {
+				var trues = _v0.a;
+				var falses = _v0.b;
+				return pred(x) ? _Utils_Tuple2(
+					A2($elm$core$List$cons, x, trues),
+					falses) : _Utils_Tuple2(
+					trues,
+					A2($elm$core$List$cons, x, falses));
+			});
+		return A3(
+			$elm$core$List$foldr,
+			step,
+			_Utils_Tuple2(_List_Nil, _List_Nil),
+			list);
+	});
+var $author$project$Item$partitionByTags = F2(
+	function (tag_list, item_list) {
+		var matchesTags = F2(
+			function (tags, item) {
+				if (!tags.b) {
+					return true;
+				} else {
+					var t = tags.a;
+					var ts = tags.b;
+					return A2($elm$core$List$member, t, item.tags) && A2(matchesTags, ts, item);
+				}
+			});
+		return A2(
+			$elm$core$List$partition,
+			matchesTags(tag_list),
+			item_list);
+	});
+var $elm_explorations$test$Test$Internal$ElmTestVariant__Labeled = F2(
+	function (a, b) {
+		return {__elmTestSymbol: __elmTestSymbol, $: 'ElmTestVariant__Labeled', a: a, b: b};
+	});
+var $elm_explorations$test$Test$Internal$ElmTestVariant__UnitTest = function (a) {
+	return {__elmTestSymbol: __elmTestSymbol, $: 'ElmTestVariant__UnitTest', a: a};
+};
+var $elm_explorations$test$Test$Runner$Failure$BadDescription = {$: 'BadDescription'};
+var $elm_explorations$test$Test$Runner$Failure$Invalid = function (a) {
+	return {$: 'Invalid', a: a};
+};
+var $elm_explorations$test$Test$Internal$failNow = function (record) {
+	return $elm_explorations$test$Test$Internal$ElmTestVariant__UnitTest(
+		function (_v0) {
+			return _List_fromArray(
+				[
+					$elm_explorations$test$Test$Expectation$fail(record)
+				]);
+		});
+};
+var $elm_explorations$test$Test$Internal$blankDescriptionFailure = $elm_explorations$test$Test$Internal$failNow(
+	{
+		description: 'This test has a blank description. Let\'s give it a useful one!',
+		reason: $elm_explorations$test$Test$Runner$Failure$Invalid($elm_explorations$test$Test$Runner$Failure$BadDescription)
+	});
+var $elm$core$String$isEmpty = function (string) {
+	return string === '';
+};
+var $elm$core$String$trim = _String_trim;
+var $elm_explorations$test$Test$test = F2(
+	function (untrimmedDesc, thunk) {
+		var desc = $elm$core$String$trim(untrimmedDesc);
+		return $elm$core$String$isEmpty(desc) ? $elm_explorations$test$Test$Internal$blankDescriptionFailure : A2(
+			$elm_explorations$test$Test$Internal$ElmTestVariant__Labeled,
+			desc,
+			$elm_explorations$test$Test$Internal$ElmTestVariant__UnitTest(
+				function (_v0) {
+					return _List_fromArray(
+						[
+							thunk(_Utils_Tuple0)
+						]);
+				}));
+	});
+var $author$project$TestItem$testCsv = 'fire,reaction,element,-oxygen,-fuel,-heat,+heat,+smoke\nwater,fluid,element,-cool,+moisture,,\nair,fluid,element,+oxygen,,,\nearth,solid,element,-smoke,-moisture,-oxygen,+fuel\noil,fluid';
+var $elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			$elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
+	});
+var $elm$core$List$maybeCons = F3(
+	function (f, mx, xs) {
+		var _v0 = f(mx);
+		if (_v0.$ === 'Just') {
+			var x = _v0.a;
+			return A2($elm$core$List$cons, x, xs);
 		} else {
-			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
+			return xs;
 		}
 	});
-var $elm$core$List$concat = function (lists) {
-	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
-};
+var $elm$core$List$filterMap = F2(
+	function (f, xs) {
+		return A3(
+			$elm$core$List$foldr,
+			$elm$core$List$maybeCons(f),
+			_List_Nil,
+			xs);
+	});
+var $elm$core$String$lines = _String_lines;
+var $elm$core$Basics$neq = _Utils_notEqual;
+var $elm$core$String$length = _String_length;
+var $elm$core$String$slice = _String_slice;
+var $elm$core$String$dropLeft = F2(
+	function (n, string) {
+		return (n < 1) ? string : A3(
+			$elm$core$String$slice,
+			n,
+			$elm$core$String$length(string),
+			string);
+	});
 var $elm$core$List$map = F2(
 	function (f, xs) {
 		return A3(
@@ -3094,6 +3287,152 @@ var $elm$core$List$map = F2(
 			_List_Nil,
 			xs);
 	});
+var $elm$core$String$startsWith = _String_startsWith;
+var $author$project$Item$getNeeds = function (contents) {
+	return A2(
+		$elm$core$List$map,
+		$elm$core$String$dropLeft(1),
+		A2(
+			$elm$core$List$filter,
+			$elm$core$String$startsWith('-'),
+			contents));
+};
+var $author$project$Item$getOffers = function (contents) {
+	return A2(
+		$elm$core$List$map,
+		$elm$core$String$dropLeft(1),
+		A2(
+			$elm$core$List$filter,
+			$elm$core$String$startsWith('+'),
+			contents));
+};
+var $author$project$Item$getTags = function (contents) {
+	return A2(
+		$elm$core$List$filter,
+		function (x) {
+			return !A2($elm$core$String$startsWith, '-', x);
+		},
+		A2(
+			$elm$core$List$filter,
+			function (x) {
+				return !A2($elm$core$String$startsWith, '+', x);
+			},
+			A2(
+				$elm$core$List$filter,
+				function (x) {
+					return $elm$core$String$length(x) > 0;
+				},
+				contents)));
+};
+var $author$project$Item$toItem = function (csv_line) {
+	return function (entries) {
+		if (!entries.b) {
+			return $elm$core$Maybe$Nothing;
+		} else {
+			var x = entries.a;
+			var xs = entries.b;
+			return $elm$core$Maybe$Just(
+				{
+					name: x,
+					needs: $author$project$Item$getNeeds(xs),
+					offers: $author$project$Item$getOffers(xs),
+					tags: $author$project$Item$getTags(xs)
+				});
+		}
+	}(
+		A2($elm$core$String$split, ',', csv_line));
+};
+var $author$project$Item$toItemList = function (csv) {
+	return A2(
+		$elm$core$List$filter,
+		function (item) {
+			return item.name !== '';
+		},
+		A2(
+			$elm$core$List$filterMap,
+			$author$project$Item$toItem,
+			$elm$core$String$lines(csv)));
+};
+var $author$project$TestItem$partitionByTags = function () {
+	var water = A4(
+		$author$project$Item$Item,
+		'water',
+		_List_fromArray(
+			['fluid', 'element']),
+		_List_fromArray(
+			['cool']),
+		_List_fromArray(
+			['moisture']));
+	var oil = A4(
+		$author$project$Item$Item,
+		'oil',
+		_List_fromArray(
+			['fluid']),
+		_List_Nil,
+		_List_Nil);
+	var fire = A4(
+		$author$project$Item$Item,
+		'fire',
+		_List_fromArray(
+			['reaction', 'element']),
+		_List_fromArray(
+			['oxygen', 'fuel', 'heat']),
+		_List_fromArray(
+			['heat', 'smoke']));
+	var earth = A4(
+		$author$project$Item$Item,
+		'earth',
+		_List_fromArray(
+			['solid', 'element']),
+		_List_fromArray(
+			['smoke', 'moisture', 'oxygen']),
+		_List_fromArray(
+			['fuel']));
+	var air = A4(
+		$author$project$Item$Item,
+		'air',
+		_List_fromArray(
+			['fluid', 'element']),
+		_List_Nil,
+		_List_fromArray(
+			['oxygen']));
+	return A2(
+		$elm_explorations$test$Test$test,
+		'item list should be split into items with ALL tags and items without',
+		function (_v0) {
+			return A2(
+				$elm_explorations$test$Expect$equal,
+				_Utils_Tuple2(
+					_List_fromArray(
+						[water, air]),
+					_List_fromArray(
+						[fire, earth, oil])),
+				A2(
+					$author$project$Item$partitionByTags,
+					_List_fromArray(
+						['fluid', 'element']),
+					$author$project$Item$toItemList($author$project$TestItem$testCsv)));
+		});
+}();
+var $author$project$Test$Runner$Node$Receive = function (a) {
+	return {$: 'Receive', a: a};
+};
+var $elm_explorations$test$Test$Runner$Failure$DuplicatedName = {$: 'DuplicatedName'};
+var $elm_explorations$test$Test$Internal$ElmTestVariant__Batch = function (a) {
+	return {__elmTestSymbol: __elmTestSymbol, $: 'ElmTestVariant__Batch', a: a};
+};
+var $elm_explorations$test$Test$Runner$Failure$EmptyList = {$: 'EmptyList'};
+var $elm$core$List$append = F2(
+	function (xs, ys) {
+		if (!ys.b) {
+			return xs;
+		} else {
+			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
+		}
+	});
+var $elm$core$List$concat = function (lists) {
+	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
+};
 var $elm$core$List$concatMap = F2(
 	function (f, list) {
 		return $elm$core$List$concat(
@@ -3327,28 +3666,6 @@ var $elm_explorations$test$Test$Internal$duplicatedName = function (tests) {
 	var uniquesAccum = _v1.b;
 	return $elm$core$Set$isEmpty(dupsAccum) ? $elm$core$Result$Ok(uniquesAccum) : $elm$core$Result$Err(dupsAccum);
 };
-var $elm_explorations$test$Test$Internal$ElmTestVariant__UnitTest = function (a) {
-	return {__elmTestSymbol: __elmTestSymbol, $: 'ElmTestVariant__UnitTest', a: a};
-};
-var $elm_explorations$test$Test$Expectation$Fail = function (a) {
-	return {$: 'Fail', a: a};
-};
-var $elm_explorations$test$Test$Distribution$NoDistribution = {$: 'NoDistribution'};
-var $elm_explorations$test$Test$Expectation$fail = function (_v0) {
-	var description = _v0.description;
-	var reason = _v0.reason;
-	return $elm_explorations$test$Test$Expectation$Fail(
-		{description: description, distributionReport: $elm_explorations$test$Test$Distribution$NoDistribution, given: $elm$core$Maybe$Nothing, reason: reason});
-};
-var $elm_explorations$test$Test$Internal$failNow = function (record) {
-	return $elm_explorations$test$Test$Internal$ElmTestVariant__UnitTest(
-		function (_v0) {
-			return _List_fromArray(
-				[
-					$elm_explorations$test$Test$Expectation$fail(record)
-				]);
-		});
-};
 var $elm$core$List$isEmpty = function (xs) {
 	if (!xs.b) {
 		return true;
@@ -3386,15 +3703,6 @@ var $elm_explorations$test$Test$concat = function (tests) {
 		}
 	}
 };
-var $elm_explorations$test$Test$Runner$Failure$BadDescription = {$: 'BadDescription'};
-var $elm_explorations$test$Test$Internal$ElmTestVariant__Labeled = F2(
-	function (a, b) {
-		return {__elmTestSymbol: __elmTestSymbol, $: 'ElmTestVariant__Labeled', a: a, b: b};
-	});
-var $elm$core$String$isEmpty = function (string) {
-	return string === '';
-};
-var $elm$core$String$trim = _String_trim;
 var $elm_explorations$test$Test$describe = F2(
 	function (untrimmedDesc, tests) {
 		var desc = $elm$core$String$trim(untrimmedDesc);
@@ -3804,17 +4112,6 @@ var $author$project$Test$Reporter$Json$reportBegin = function (_v0) {
 						$elm$core$String$fromInt(initialSeed)))
 				])));
 };
-var $elm$core$List$filter = F2(
-	function (isGood, list) {
-		return A3(
-			$elm$core$List$foldr,
-			F2(
-				function (x, xs) {
-					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
-				}),
-			_List_Nil,
-			list);
-	});
 var $elm_explorations$test$AsciiTable$AlignLeft = {$: 'AlignLeft'};
 var $elm_explorations$test$AsciiTable$AlignRight = {$: 'AlignRight'};
 var $elm_explorations$test$Test$Runner$Distribution$bars = 30;
@@ -3822,7 +4119,6 @@ var $elm$core$String$cons = _String_cons;
 var $elm$core$String$fromChar = function (_char) {
 	return A2($elm$core$String$cons, _char, '');
 };
-var $elm$core$String$length = _String_length;
 var $elm$core$Bitwise$and = _Bitwise_and;
 var $elm$core$Bitwise$shiftRightBy = _Bitwise_shiftRightBy;
 var $elm$core$String$repeatHelp = F3(
@@ -4026,27 +4322,6 @@ var $elm_explorations$test$Test$Runner$Distribution$formatAsciiTable = F2(
 				}
 				]),
 			items);
-	});
-var $elm$core$List$any = F2(
-	function (isOkay, list) {
-		any:
-		while (true) {
-			if (!list.b) {
-				return false;
-			} else {
-				var x = list.a;
-				var xs = list.b;
-				if (isOkay(x)) {
-					return true;
-				} else {
-					var $temp$isOkay = isOkay,
-						$temp$list = xs;
-					isOkay = $temp$isOkay;
-					list = $temp$list;
-					continue any;
-				}
-			}
-		}
 	});
 var $elm$core$Basics$composeR = F3(
 	function (f, g, x) {
@@ -4461,7 +4736,6 @@ var $elm$core$Set$diff = F2(
 var $elm$core$Set$fromList = function (list) {
 	return A3($elm$core$List$foldl, $elm$core$Set$insert, $elm$core$Set$empty, list);
 };
-var $elm$core$Basics$not = _Basics_not;
 var $elm_explorations$test$Test$Runner$Distribution$isStrictSubset = F2(
 	function (all, combination) {
 		var combinationSet = $elm$core$Set$fromList(combination);
@@ -4479,24 +4753,6 @@ var $elm_explorations$test$Test$Runner$Distribution$isStrictSubset = F2(
 var $elm$core$Basics$negate = function (n) {
 	return -n;
 };
-var $elm$core$List$partition = F2(
-	function (pred, list) {
-		var step = F2(
-			function (x, _v0) {
-				var trues = _v0.a;
-				var falses = _v0.b;
-				return pred(x) ? _Utils_Tuple2(
-					A2($elm$core$List$cons, x, trues),
-					falses) : _Utils_Tuple2(
-					trues,
-					A2($elm$core$List$cons, x, falses));
-			});
-		return A3(
-			$elm$core$List$foldr,
-			step,
-			_Utils_Tuple2(_List_Nil, _List_Nil),
-			list);
-	});
 var $elm$core$String$replace = F3(
 	function (before, after, string) {
 		return A2(
@@ -4865,24 +5121,6 @@ var $author$project$Test$Reporter$Console$failureLabelsToText = A2(
 			$author$project$Test$Reporter$Console$withChar(
 				_Utils_chr('✗')))),
 	$author$project$Console$Text$concat);
-var $elm$core$List$maybeCons = F3(
-	function (f, mx, xs) {
-		var _v0 = f(mx);
-		if (_v0.$ === 'Just') {
-			var x = _v0.a;
-			return A2($elm$core$List$cons, x, xs);
-		} else {
-			return xs;
-		}
-	});
-var $elm$core$List$filterMap = F2(
-	function (f, xs) {
-		return A3(
-			$elm$core$List$foldr,
-			$elm$core$List$maybeCons(f),
-			_List_Nil,
-			xs);
-	});
 var $elm$core$Basics$always = F2(
 	function (a, _v0) {
 		return a;
@@ -5367,7 +5605,6 @@ var $author$project$Test$Reporter$Highlightable$diffLists = F2(
 			$author$project$Test$Reporter$Highlightable$fromDiff,
 			A2($author$project$Test$Runner$Node$Vendor$Diff$diff, expected, actual));
 	});
-var $elm$core$String$toFloat = _String_toFloat;
 var $author$project$Test$Reporter$Console$Format$isFloat = function (str) {
 	var _v0 = $elm$core$String$toFloat(str);
 	if (_v0.$ === 'Just') {
@@ -5388,7 +5625,6 @@ var $author$project$Test$Reporter$Highlightable$map = F2(
 				transform(val));
 		}
 	});
-var $elm$core$Basics$neq = _Utils_notEqual;
 var $elm$core$Tuple$pair = F2(
 	function (a, b) {
 		return _Utils_Tuple2(a, b);
@@ -6916,11 +7152,6 @@ var $elm_explorations$test$Test$Runner$distributeSeedsHelp = F4(
 		}
 	});
 var $elm_explorations$test$Test$Runner$distributeSeeds = $elm_explorations$test$Test$Runner$distributeSeedsHelp(false);
-var $elm_explorations$test$Test$Runner$Failure$Custom = {$: 'Custom'};
-var $elm_explorations$test$Expect$fail = function (str) {
-	return $elm_explorations$test$Test$Expectation$fail(
-		{description: str, reason: $elm_explorations$test$Test$Runner$Failure$Custom});
-};
 var $elm_explorations$test$Test$Runner$runThunk = _Test_runThunk;
 var $elm_explorations$test$Test$Runner$run = function (_v0) {
 	var fn = _v0.a;
@@ -7601,59 +7832,6 @@ var $author$project$Test$Runner$Node$run = F2(
 				});
 		}
 	});
-var $elm_explorations$test$Test$Runner$Failure$Equality = F2(
-	function (a, b) {
-		return {$: 'Equality', a: a, b: b};
-	});
-var $elm$core$String$contains = _String_contains;
-var $elm_explorations$test$Test$Expectation$Pass = function (a) {
-	return {$: 'Pass', a: a};
-};
-var $elm_explorations$test$Expect$pass = $elm_explorations$test$Test$Expectation$Pass(
-	{distributionReport: $elm_explorations$test$Test$Distribution$NoDistribution});
-var $elm_explorations$test$Test$Internal$toString = _Debug_toString;
-var $elm_explorations$test$Expect$testWith = F5(
-	function (makeReason, label, runTest, expected, actual) {
-		return A2(runTest, actual, expected) ? $elm_explorations$test$Expect$pass : $elm_explorations$test$Test$Expectation$fail(
-			{
-				description: label,
-				reason: A2(
-					makeReason,
-					$elm_explorations$test$Test$Internal$toString(expected),
-					$elm_explorations$test$Test$Internal$toString(actual))
-			});
-	});
-var $elm$core$String$toInt = _String_toInt;
-var $elm_explorations$test$Expect$equateWith = F4(
-	function (reason, comparison, b, a) {
-		var isJust = function (x) {
-			if (x.$ === 'Just') {
-				return true;
-			} else {
-				return false;
-			}
-		};
-		var isFloat = function (x) {
-			return isJust(
-				$elm$core$String$toFloat(x)) && (!isJust(
-				$elm$core$String$toInt(x)));
-		};
-		var usesFloats = isFloat(
-			$elm_explorations$test$Test$Internal$toString(a)) || isFloat(
-			$elm_explorations$test$Test$Internal$toString(b));
-		var floatError = A2($elm$core$String$contains, reason, 'not') ? 'Do not use Expect.notEqual with floats. Use Expect.notWithin instead.' : 'Do not use Expect.equal with floats. Use Expect.within instead.';
-		return usesFloats ? $elm_explorations$test$Expect$fail(floatError) : A5($elm_explorations$test$Expect$testWith, $elm_explorations$test$Test$Runner$Failure$Equality, reason, comparison, b, a);
-	});
-var $elm_explorations$test$Expect$equal = A2($elm_explorations$test$Expect$equateWith, 'Expect.equal', $elm$core$Basics$eq);
-var $elm$core$List$member = F2(
-	function (x, xs) {
-		return A2(
-			$elm$core$List$any,
-			function (a) {
-				return _Utils_eq(a, x);
-			},
-			xs);
-	});
 var $author$project$Scorer$getSupport = F2(
 	function (item_1, item_2) {
 		var _v0 = item_1.offers;
@@ -7699,25 +7877,6 @@ var $author$project$Scorer$scoreList = function (item_list) {
 		return A2($author$project$Scorer$scoreRemoval, x, xs) + $author$project$Scorer$scoreList(xs);
 	}
 };
-var $elm_explorations$test$Test$Internal$blankDescriptionFailure = $elm_explorations$test$Test$Internal$failNow(
-	{
-		description: 'This test has a blank description. Let\'s give it a useful one!',
-		reason: $elm_explorations$test$Test$Runner$Failure$Invalid($elm_explorations$test$Test$Runner$Failure$BadDescription)
-	});
-var $elm_explorations$test$Test$test = F2(
-	function (untrimmedDesc, thunk) {
-		var desc = $elm$core$String$trim(untrimmedDesc);
-		return $elm$core$String$isEmpty(desc) ? $elm_explorations$test$Test$Internal$blankDescriptionFailure : A2(
-			$elm_explorations$test$Test$Internal$ElmTestVariant__Labeled,
-			desc,
-			$elm_explorations$test$Test$Internal$ElmTestVariant__UnitTest(
-				function (_v0) {
-					return _List_fromArray(
-						[
-							thunk(_Utils_Tuple0)
-						]);
-				}));
-	});
 var $author$project$TestScorer$testAir = {
 	name: 'air',
 	needs: _List_Nil,
@@ -7897,76 +8056,8 @@ var $author$project$TestScorer$sortByMargin = A2(
 					[$author$project$TestScorer$testFire, $author$project$TestScorer$testWater, $author$project$TestScorer$testAir]),
 				$author$project$TestScorer$testItemList));
 	});
-var $author$project$TestItem$testAir = 'air,fluid,+oxygen';
-var $author$project$TestItem$testCsv = 'fire,reaction,-oxygen,-fuel,-heat,+heat,+smoke\nwater,fluid,-cool,+moisture,,\nair,fluid,+oxygen,,,\nearth,solid,-smoke,-moisture,-oxygen,+fuel';
 var $author$project$TestMain$testCsv = 'fire,reaction,-oxygen,-fuel,+heat,+smoke\nwater,fluid,-cool,+moisture,,\nair,fluid,+oxygen,,,\nearth,solid,-smoke,-moisture,-oxygen,+fuel';
-var $author$project$TestItem$testEarth = 'earth,solid,-smoke,-moisture,-oxygen,+fuel';
-var $author$project$TestItem$testFire = 'fire,reaction,-oxygen,-fuel,-heat,+heat,+smoke';
-var $author$project$TestItem$testWater = 'water,fluid,-cool,+moisture';
-var $elm$core$String$slice = _String_slice;
-var $elm$core$String$dropLeft = F2(
-	function (n, string) {
-		return (n < 1) ? string : A3(
-			$elm$core$String$slice,
-			n,
-			$elm$core$String$length(string),
-			string);
-	});
-var $elm$core$String$startsWith = _String_startsWith;
-var $author$project$Item$getNeeds = function (contents) {
-	return A2(
-		$elm$core$List$map,
-		$elm$core$String$dropLeft(1),
-		A2(
-			$elm$core$List$filter,
-			$elm$core$String$startsWith('-'),
-			contents));
-};
-var $author$project$Item$getOffers = function (contents) {
-	return A2(
-		$elm$core$List$map,
-		$elm$core$String$dropLeft(1),
-		A2(
-			$elm$core$List$filter,
-			$elm$core$String$startsWith('+'),
-			contents));
-};
-var $author$project$Item$getTags = function (contents) {
-	return A2(
-		$elm$core$List$filter,
-		function (x) {
-			return !A2($elm$core$String$startsWith, '-', x);
-		},
-		A2(
-			$elm$core$List$filter,
-			function (x) {
-				return !A2($elm$core$String$startsWith, '+', x);
-			},
-			A2(
-				$elm$core$List$filter,
-				function (x) {
-					return $elm$core$String$length(x) > 0;
-				},
-				contents)));
-};
-var $author$project$Item$toItem = function (csv_line) {
-	return function (entries) {
-		if (!entries.b) {
-			return $elm$core$Maybe$Nothing;
-		} else {
-			var x = entries.a;
-			var xs = entries.b;
-			return $elm$core$Maybe$Just(
-				{
-					name: x,
-					needs: $author$project$Item$getNeeds(xs),
-					offers: $author$project$Item$getOffers(xs),
-					tags: $author$project$Item$getTags(xs)
-				});
-		}
-	}(
-		A2($elm$core$String$split, ',', csv_line));
-};
+var $author$project$TestItem$testFire = 'fire,reaction,element,-oxygen,-fuel,-heat,+heat,+smoke';
 var $author$project$TestItem$toItem = A2(
 	$elm_explorations$test$Test$test,
 	'item should be fire',
@@ -7981,22 +8072,10 @@ var $author$project$TestItem$toItem = A2(
 					offers: _List_fromArray(
 						['heat', 'smoke']),
 					tags: _List_fromArray(
-						['reaction'])
+						['reaction', 'element'])
 				}),
 			$author$project$Item$toItem($author$project$TestItem$testFire));
 	});
-var $elm$core$String$lines = _String_lines;
-var $author$project$Item$toItemList = function (csv) {
-	return A2(
-		$elm$core$List$filter,
-		function (item) {
-			return item.name !== '';
-		},
-		A2(
-			$elm$core$List$filterMap,
-			$author$project$Item$toItem,
-			$elm$core$String$lines(csv)));
-};
 var $author$project$TestItem$toItemList = A2(
 	$elm_explorations$test$Test$test,
 	'item list should contain correct items',
@@ -8012,7 +8091,7 @@ var $author$project$TestItem$toItemList = A2(
 					offers: _List_fromArray(
 						['heat', 'smoke']),
 					tags: _List_fromArray(
-						['reaction'])
+						['reaction', 'element'])
 				},
 					{
 					name: 'water',
@@ -8021,7 +8100,7 @@ var $author$project$TestItem$toItemList = A2(
 					offers: _List_fromArray(
 						['moisture']),
 					tags: _List_fromArray(
-						['fluid'])
+						['fluid', 'element'])
 				},
 					{
 					name: 'air',
@@ -8029,7 +8108,7 @@ var $author$project$TestItem$toItemList = A2(
 					offers: _List_fromArray(
 						['oxygen']),
 					tags: _List_fromArray(
-						['fluid'])
+						['fluid', 'element'])
 				},
 					{
 					name: 'earth',
@@ -8038,8 +8117,15 @@ var $author$project$TestItem$toItemList = A2(
 					offers: _List_fromArray(
 						['fuel']),
 					tags: _List_fromArray(
-						['solid'])
-				}
+						['solid', 'element'])
+				},
+					A4(
+					$author$project$Item$Item,
+					'oil',
+					_List_fromArray(
+						['fluid']),
+					_List_Nil,
+					_List_Nil)
 				]),
 			$author$project$Item$toItemList($author$project$TestItem$testCsv));
 	});
@@ -8052,7 +8138,7 @@ var $author$project$Test$Generated$Main$main = A2(
 		processes: 8,
 		report: $author$project$Test$Reporter$Reporter$ConsoleReport($author$project$Console$Text$Monochrome),
 		runs: 100,
-		seed: 301208339380954
+		seed: 295898585542869
 	},
 	_List_fromArray(
 		[
@@ -8062,11 +8148,9 @@ var $author$project$Test$Generated$Main$main = A2(
 				[
 					$author$project$Test$Runner$Node$check($author$project$TestItem$testCsv),
 					$author$project$Test$Runner$Node$check($author$project$TestItem$testFire),
-					$author$project$Test$Runner$Node$check($author$project$TestItem$testWater),
-					$author$project$Test$Runner$Node$check($author$project$TestItem$testAir),
-					$author$project$Test$Runner$Node$check($author$project$TestItem$testEarth),
 					$author$project$Test$Runner$Node$check($author$project$TestItem$toItem),
-					$author$project$Test$Runner$Node$check($author$project$TestItem$toItemList)
+					$author$project$Test$Runner$Node$check($author$project$TestItem$toItemList),
+					$author$project$Test$Runner$Node$check($author$project$TestItem$partitionByTags)
 				])),
 			_Utils_Tuple2(
 			'TestMain',
@@ -8092,7 +8176,7 @@ var $author$project$Test$Generated$Main$main = A2(
 _Platform_export({'Test':{'Generated':{'Main':{'init':$author$project$Test$Generated$Main$main($elm$json$Json$Decode$int)(0)}}}});}(this));
 return this.Elm;
 })({});
-var pipeFilename = "\\\\.\\pipe\\elm_test-29416-1";
+var pipeFilename = "\\\\.\\pipe\\elm_test-8664-1";
 var net = require('net'),
   client = net.createConnection(pipeFilename);
 

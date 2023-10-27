@@ -1,4 +1,4 @@
-module Item exposing (Item, toItem, toItemList)
+module Item exposing (Item, toItem, toItemList, partitionByTags)
 
 
 type alias Item =
@@ -7,6 +7,20 @@ type alias Item =
   , needs : List String
   , offers : List String
   }
+
+
+partitionByTags : List String -> List Item -> (List Item, List Item)
+partitionByTags tag_list item_list =
+  let
+    matchesTags tags item =
+      case tags of
+        [] ->
+          True
+
+        t :: ts ->
+          (List.member t item.tags) && (matchesTags ts item)
+  in
+  List.partition (matchesTags tag_list) item_list
 
 
 toItemList : String -> List Item
