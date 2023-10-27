@@ -38,23 +38,31 @@ type alias App =
   , summary : Maybe SynergySummary
   }
 
-type alias Model = Maybe App
+
+type Page
+  = WELCOME
+  | APPLICATION
 
 
-toModel : String -> Model
-toModel csv =
+type alias Model =
+  { current_page : Page
+  , app : App
+  }
+
+
+csvToApp : String -> App
+csvToApp csv =
   toItemList csv
-  |> \xs ->
-    Just
-      { hidden = []
-      , unselected = xs
-      , selected = []
-      , summary = Nothing
-      }
+  |> \items -> App [] items [] Nothing
 
 
 init : () -> (Model, Cmd Msg)
-init _ = (Nothing, Cmd.none)
+init _ =
+  ( { current_page = WELCOME
+    , app = App [] [] [] Nothing
+    }
+  , Cmd.none
+  )
 
 
 -- UPDATE
@@ -109,34 +117,26 @@ update msg model =
       , Task.perform CsvLoaded (File.toString file)
       )
 
-    CsvLoaded content ->
-      ( toModel content
+    CsvLoaded csv ->
+      ( Model APPLICATION <| csvToApp csv
       , Cmd.none
       )
 
     Execute click_method ->
-      case model of
-        Nothing ->
-          (Nothing, Cmd.none)
-
-        Just app ->
-          ( Just (click_method app)
-          , Cmd.none
-          )
+      ( { model | app = click_method model.app }
+      , Cmd.none
+      )
 
     ShowSynergySummary item ->
-      case model of
-        Nothing ->
-          (Nothing, Cmd.none)
+      let old_app = model.app in
+      ( { model
+        | app = { old_app | summary = Just <| scoreRemovalVerbose item old_app.selected }
+        }
+      , Cmd.none
+      )
 
-        Just app ->
-          ( Just { app | summary = Just <| scoreRemovalVerbose item app.selected }
-          , Cmd.none
-          )
+-- STYLE
 
-
-
--- ELEMENTS
 
 color =
     { blue = rgb255 0x72 0x9F 0xCF
@@ -148,6 +148,10 @@ color =
     , red = rgb255 0xAA 0x00 0x00
     , white = rgb255 0xFF 0xFF 0xFF
     }
+
+
+-- ELEMENTS
+
 
 loadCsvButton
   = Input.button
@@ -309,22 +313,35 @@ summaryWindow app =
         ]
 
 
+-- PAGES
+
+pageWelcome : Html Msg
+pageWelcome =
+  layout [] loadCsvButton
+
+pageApplication : App -> Html Msg
+pageApplication app =
+  layout [ width fill, height fill ]
+    <| column
+      [ width fill
+      , height fill
+      , padding 5
+      , spacing 10
+      ]
+      [ itemTables app
+      , summaryWindow app
+      ]
 
 -- VIEW
 
-
 view : Model -> Html Msg
 view model =
-  case model of
-    Nothing ->
-      layout [] <| loadCsvButton
-    Just app ->
-      layout [ width fill, height fill ]
-        <| column
-          [ width fill, height fill, padding 5, spacing 10 ]
-          [ itemTables app
-          , summaryWindow app
-          ]
+  case model.current_page of
+    WELCOME ->
+      pageWelcome
+
+    APPLICATION ->
+      pageApplication model.app
 
 
 -- SUBSCRIPTIONS
