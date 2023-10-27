@@ -12,6 +12,8 @@ import Element.Border as Border
 import Element.Events as Events
 import Element.Font as Font
 import Element.Input as Input
+import Set exposing (Set)
+
 
 import Item exposing (..)
 import Scorer exposing (..)
@@ -36,6 +38,7 @@ type alias App =
   , unselected : List Item
   , selected : List Item
   , summary : Maybe SynergySummary
+  , active_filters : List String
   }
 
 
@@ -53,13 +56,13 @@ type alias Model =
 csvToApp : String -> App
 csvToApp csv =
   toItemList csv
-  |> \items -> App [] items [] Nothing
+  |> \items -> App [] items [] Nothing []
 
 
 init : () -> (Model, Cmd Msg)
 init _ =
   ( { current_page = WELCOME
-    , app = App [] [] [] Nothing
+    , app = App [] [] [] Nothing []
     }
   , Cmd.none
   )
@@ -74,6 +77,7 @@ type Msg
   | CsvLoaded String
   | MoveItem Item
   | ShowSynergySummary Item
+  | ToggleFilter String
 
 
 clearItem : Item -> App -> App
@@ -82,6 +86,7 @@ clearItem item app =
   , unselected = List.filter (\x -> x /= item) app.unselected
   , selected = List.filter (\x -> x /= item) app.selected
   , summary = Nothing
+  , active_filters = app.active_filters
   }
 
 
@@ -109,6 +114,16 @@ moveItem item app =
     then selectItem item app
     else unselectItem item app
 
+
+filterItems : App -> App
+filterItems app =
+  app.hidden ++ app.unselected
+  |> Item.partitionByTags app.active_filters
+  |> \partitioned_items ->
+    { app
+    | unselected = Tuple.first partitioned_items
+    , hidden = Tuple.second partitioned_items
+    }
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -141,6 +156,22 @@ update msg model =
         }
       , Cmd.none
       )
+
+    ToggleFilter tag ->
+      let
+        app = model.app
+
+        appWithoutTag =
+          { app | active_filters = List.filter ((/=) tag ) app.active_filters }
+
+        appWithTag =
+          { app | active_filters = tag :: app.active_filters }
+
+
+      in
+      if List.member tag app.active_filters
+        then ( { model | app = appWithoutTag }, Cmd.none )
+        else ( { model | app = appWithTag }, Cmd.none )
 
 -- STYLE
 
@@ -312,6 +343,37 @@ summaryWindow app =
         ]
 
 
+filterBar : App -> Element Msg
+filterBar app =
+  let
+    attrButtonExtra tag =
+      if List.member tag app.active_filters
+        then [ Background.color color.orange ]
+        else []
+
+    attrButton tag =
+      [ padding 5, width fill ]
+      |> (++) (attrButtonExtra tag)
+
+
+    tagButton tag =
+      Input.button
+        (attrButton tag)
+        { onPress = Just (ToggleFilter tag)
+        , label = text tag
+        }
+  in
+  column
+    [ height fill
+    , width <| fillPortion 1
+    , paddingXY 0 10
+    , scrollbarY
+    , Background.color color.darkCharcoal
+    , Font.color color.white
+    ]
+    <| List.map tagButton (Set.toList <| Item.getTagsFromList <| app.unselected ++ app.hidden)
+
+
 -- PAGES
 
 pageWelcome : Html Msg
@@ -321,14 +383,18 @@ pageWelcome =
 pageApplication : App -> Html Msg
 pageApplication app =
   layout [ width fill, height fill ]
-    <| column
-      [ width fill
-      , height fill
-      , padding 5
-      , spacing 10
-      ]
-      [ itemTables app
-      , summaryWindow app
+    <| row [ width fill , height fill ]
+    <|
+      [ filterBar app
+      , column
+        [ width <| fillPortion 4
+        , height fill
+        , padding 5
+        , spacing 10
+        ]
+        [ itemTables app
+        , summaryWindow app
+        ]
       ]
 
 -- VIEW
@@ -340,7 +406,7 @@ view model =
       pageWelcome
 
     APPLICATION ->
-      pageApplication model.app
+      pageApplication <| filterItems model.app
 
 
 -- SUBSCRIPTIONS

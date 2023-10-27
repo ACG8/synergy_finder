@@ -5,6 +5,7 @@ import Fuzz exposing (Fuzzer, int, list, string)
 import Test exposing (..)
 import Item exposing (..)
 import Scorer exposing (..)
+import Set exposing (Set)
 
 
 testCsv = """fire,reaction,element,-oxygen,-fuel,-heat,+heat,+smoke
@@ -56,6 +57,15 @@ toItemList =
                 }
                 , Item "oil" ["fluid"] [] []
                 ]
+
+
+getTagsFromList =
+    test "item list should have all tags" <|
+    \_ ->
+        Item.toItemList testCsv
+        |> Item.getTagsFromList
+        |> Expect.equal (Set.fromList ["reaction", "element", "fluid", "solid"])
+
 
 partitionByTags =
     let

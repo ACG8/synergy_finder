@@ -1,5 +1,6 @@
-module Item exposing (Item, toItem, toItemList, partitionByTags)
+module Item exposing (Item, toItem, toItemList, partitionByTags, getTagsFromList)
 
+import Set exposing (Set)
 
 type alias Item =
   { name : String
@@ -33,6 +34,24 @@ toItemList csv =
 
 toItem : String -> Maybe Item
 toItem csv_line =
+  let
+    getTags contents =
+      contents
+        |> List.filter (\x -> String.length x > 0)
+        |> List.filter (\x -> not <| String.startsWith "+" x)
+        |> List.filter (\x -> not <| String.startsWith "-" x)
+
+    getNeeds contents =
+      contents
+        |> List.filter (String.startsWith "-")
+        |> List.map (String.dropLeft 1)
+
+
+    getOffers contents =
+      contents
+        |> List.filter (String.startsWith "+")
+        |> List.map (String.dropLeft 1)
+  in
   csv_line
     |> String.split ","
     |> \entries ->
@@ -49,23 +68,13 @@ toItem csv_line =
             }
 
 
-getTags : List String -> List String
-getTags contents =
-  contents
-    |> List.filter (\x -> String.length x > 0)
-    |> List.filter (\x -> not <| String.startsWith "+" x)
-    |> List.filter (\x -> not <| String.startsWith "-" x)
+getTagsFromList : List Item -> Set String
+getTagsFromList item_list =
+  case item_list of
+    [] ->
+      Set.empty
+
+    item :: rest ->
+      Set.union (Set.fromList item.tags) <| getTagsFromList rest
 
 
-getNeeds : List String -> List String
-getNeeds contents =
-  contents
-    |> List.filter (String.startsWith "-")
-    |> List.map (String.dropLeft 1)
-
-
-getOffers : List String -> List String
-getOffers contents =
-  contents
-    |> List.filter (String.startsWith "+")
-    |> List.map (String.dropLeft 1)
