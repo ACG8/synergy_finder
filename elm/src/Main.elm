@@ -205,7 +205,7 @@ tableAttr =
 
 tableHeaderAttr =
   [ Font.bold
-  , Font.color color.green
+  , Font.color color.darkCharcoal
   , Border.widthEach { bottom = 2, top = 0, left = 0, right = 0 }
   , Border.color color.blue
   ]
@@ -299,7 +299,9 @@ summaryWindow app =
     ]
     <| case app.summary of
       Nothing ->
-        []
+        [ summaryTable "Needs" []
+        , summaryTable "Offers" []
+        ]
 
       Just summary ->
         [ summaryTable "Needs" summary.needs
