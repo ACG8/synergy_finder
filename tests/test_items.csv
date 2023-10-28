@@ -1,0 +1,5 @@
+Item,Type,Class,Oxygen,Fuel,Heat,Smoke,Moisture,Cool
+Fire,reaction,element,/,//,++/,++,,
+Water,fluid,element,,,,,+++,/
+Air,fluid,element,+++,,,,,
+Earth,solid,element,/,+,,/,//,

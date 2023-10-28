@@ -2922,7 +2922,7 @@ var $elm_explorations$test$Test$test = F2(
 						]);
 				}));
 	});
-var $author$project$TestItem$testCsv = 'fire,reaction,element,-oxygen,-fuel,-heat,+heat,+smoke\nwater,fluid,element,-cool,+moisture,,\nair,fluid,element,+oxygen,,,\nearth,solid,element,-smoke,-moisture,-oxygen,+fuel';
+var $author$project$TestItem$testCsv = 'Item,Type,Class,Oxygen,Fuel,Heat,Smoke,Moisture,Cool\nFire,Reaction,Element,/,//,++/,++,,\nWater,Fluid,Element,,,,,+++,/\nAir,Fluid,Element,+++,,,,,\nEarth,Solid,Element,/,+,,/,//,';
 var $elm$core$Basics$add = _Basics_add;
 var $elm$core$Basics$gt = _Utils_gt;
 var $elm$core$List$reverse = function (list) {
@@ -3012,50 +3012,48 @@ var $elm$core$List$filterMap = F2(
 			_List_Nil,
 			xs);
 	});
+var $elm$core$String$indices = _String_indexes;
+var $elm$core$List$length = function (xs) {
+	return A3(
+		$elm$core$List$foldl,
+		F2(
+			function (_v0, i) {
+				return i + 1;
+			}),
+		0,
+		xs);
+};
+var $elm$core$String$length = _String_length;
 var $elm$core$String$lines = _String_lines;
 var $elm$core$Basics$neq = _Utils_notEqual;
-var $elm$core$String$length = _String_length;
-var $elm$core$Basics$lt = _Utils_lt;
-var $elm$core$String$slice = _String_slice;
-var $elm$core$String$dropLeft = F2(
-	function (n, string) {
-		return (n < 1) ? string : A3(
-			$elm$core$String$slice,
-			n,
-			$elm$core$String$length(string),
-			string);
-	});
-var $elm$core$List$map = F2(
-	function (f, xs) {
-		return A3(
-			$elm$core$List$foldr,
-			F2(
-				function (x, acc) {
-					return A2(
-						$elm$core$List$cons,
-						f(x),
-						acc);
-				}),
-			_List_Nil,
-			xs);
-	});
 var $elm$core$String$split = F2(
 	function (sep, string) {
 		return _List_fromArray(
 			A2(_String_split, sep, string));
 	});
-var $elm$core$String$startsWith = _String_startsWith;
-var $author$project$Item$toItem = function (csv_line) {
+var $author$project$Item$toItemList = function (csv) {
+	var tailOfLine = function (line) {
+		return function (cells) {
+			if (!cells.b) {
+				return _List_Nil;
+			} else {
+				var first = cells.a;
+				var rest = cells.b;
+				return rest;
+			}
+		}(
+			A2($elm$core$String$split, ',', line));
+	};
 	var getTags = function (contents) {
 		return A2(
 			$elm$core$List$filter,
 			function (x) {
-				return !A2($elm$core$String$startsWith, '-', x);
+				return !A2($elm$core$String$contains, '/', x);
 			},
 			A2(
 				$elm$core$List$filter,
 				function (x) {
-					return !A2($elm$core$String$startsWith, '+', x);
+					return !A2($elm$core$String$contains, '+', x);
 				},
 				A2(
 					$elm$core$List$filter,
@@ -3064,51 +3062,96 @@ var $author$project$Item$toItem = function (csv_line) {
 					},
 					contents)));
 	};
-	var getOffers = function (contents) {
-		return A2(
-			$elm$core$List$map,
-			$elm$core$String$dropLeft(1),
-			A2(
-				$elm$core$List$filter,
-				$elm$core$String$startsWith('+'),
-				contents));
-	};
-	var getNeeds = function (contents) {
-		return A2(
-			$elm$core$List$map,
-			$elm$core$String$dropLeft(1),
-			A2(
-				$elm$core$List$filter,
-				$elm$core$String$startsWith('-'),
-				contents));
-	};
-	return function (entries) {
-		if (!entries.b) {
-			return $elm$core$Maybe$Nothing;
+	var getOffers = F2(
+		function (header, contents) {
+			var _v0 = _Utils_Tuple2(header, contents);
+			if (!_v0.b.b) {
+				return _List_Nil;
+			} else {
+				if (!_v0.a.b) {
+					return _List_Nil;
+				} else {
+					var _v1 = _v0.a;
+					var h = _v1.a;
+					var hs = _v1.b;
+					var _v2 = _v0.b;
+					var c = _v2.a;
+					var cs = _v2.b;
+					return function (count) {
+						return (count > 0) ? A2(
+							$elm$core$List$cons,
+							_Utils_Tuple2(h, count),
+							A2(getOffers, hs, cs)) : A2(getOffers, hs, cs);
+					}(
+						$elm$core$List$length(
+							A2($elm$core$String$indices, '+', c)));
+				}
+			}
+		});
+	var getNeeds = F2(
+		function (header, contents) {
+			var _v3 = _Utils_Tuple2(header, contents);
+			if (!_v3.b.b) {
+				return _List_Nil;
+			} else {
+				if (!_v3.a.b) {
+					return _List_Nil;
+				} else {
+					var _v4 = _v3.a;
+					var h = _v4.a;
+					var hs = _v4.b;
+					var _v5 = _v3.b;
+					var c = _v5.a;
+					var cs = _v5.b;
+					return function (count) {
+						return (count > 0) ? A2(
+							$elm$core$List$cons,
+							_Utils_Tuple2(h, count),
+							A2(getNeeds, hs, cs)) : A2(getNeeds, hs, cs);
+					}(
+						$elm$core$List$length(
+							A2($elm$core$String$indices, '/', c)));
+				}
+			}
+		});
+	var toItem = F2(
+		function (header, line) {
+			return function (cells) {
+				if (!cells.b) {
+					return $elm$core$Maybe$Nothing;
+				} else {
+					var name = cells.a;
+					var attributes = cells.b;
+					return $elm$core$Maybe$Just(
+						{
+							name: name,
+							needs: A2(getNeeds, header, attributes),
+							offers: A2(getOffers, header, attributes),
+							tags: getTags(attributes)
+						});
+				}
+			}(
+				A2($elm$core$String$split, ',', line));
+		});
+	return function (lines) {
+		if (!lines.b) {
+			return _List_Nil;
 		} else {
-			var x = entries.a;
-			var xs = entries.b;
-			return $elm$core$Maybe$Just(
-				{
-					name: x,
-					needs: getNeeds(xs),
-					offers: getOffers(xs),
-					tags: getTags(xs)
-				});
+			var first_line = lines.a;
+			var other_lines = lines.b;
+			return A2(
+				$elm$core$List$filter,
+				function (item) {
+					return item.name !== '';
+				},
+				A2(
+					$elm$core$List$filterMap,
+					toItem(
+						tailOfLine(first_line)),
+					other_lines));
 		}
 	}(
-		A2($elm$core$String$split, ',', csv_line));
-};
-var $author$project$Item$toItemList = function (csv) {
-	return A2(
-		$elm$core$List$filter,
-		function (item) {
-			return item.name !== '';
-		},
-		A2(
-			$elm$core$List$filterMap,
-			$author$project$Item$toItem,
-			$elm$core$String$lines(csv)));
+		$elm$core$String$lines(csv));
 };
 var $author$project$TestItem$getTagsFromList = A2(
 	$elm_explorations$test$Test$test,
@@ -3118,7 +3161,7 @@ var $author$project$TestItem$getTagsFromList = A2(
 			$elm_explorations$test$Expect$equal,
 			$elm$core$Set$fromList(
 				_List_fromArray(
-					['reaction', 'element', 'fluid', 'solid'])),
+					['Reaction', 'Element', 'Fluid', 'Solid'])),
 			$author$project$Item$getTagsFromList(
 				$author$project$Item$toItemList($author$project$TestItem$testCsv)));
 	});
@@ -3159,16 +3202,6 @@ var $elm$json$Json$Decode$indent = function (str) {
 		$elm$core$String$join,
 		'\n    ',
 		A2($elm$core$String$split, '\n', str));
-};
-var $elm$core$List$length = function (xs) {
-	return A3(
-		$elm$core$List$foldl,
-		F2(
-			function (_v0, i) {
-				return i + 1;
-			}),
-		0,
-		xs);
 };
 var $elm$core$List$map2 = _List_map2;
 var $elm$core$Basics$le = _Utils_le;
@@ -3425,6 +3458,7 @@ var $elm$core$Array$builderToArray = F2(
 		}
 	});
 var $elm$core$Basics$idiv = _Basics_idiv;
+var $elm$core$Basics$lt = _Utils_lt;
 var $elm$core$Array$initializeHelp = F5(
 	function (fn, fromIndex, len, nodeList, tail) {
 		initializeHelp:
@@ -3475,6 +3509,20 @@ var $author$project$Item$ItemFilter = F2(
 	function (tags, bonds) {
 		return {bonds: bonds, tags: tags};
 	});
+var $elm$core$List$map = F2(
+	function (f, xs) {
+		return A3(
+			$elm$core$List$foldr,
+			F2(
+				function (x, acc) {
+					return A2(
+						$elm$core$List$cons,
+						f(x),
+						acc);
+				}),
+			_List_Nil,
+			xs);
+	});
 var $author$project$Item$listToItemFilter = function (item_list) {
 	var getTags = function (items) {
 		if (!items.b) {
@@ -3496,11 +3544,13 @@ var $author$project$Item$listToItemFilter = function (item_list) {
 			var tail = items.b;
 			return A2(
 				$elm$core$Set$union,
-				getBonds(tail),
+				$elm$core$Set$fromList(
+					A2($elm$core$List$map, $elm$core$Tuple$first, head.offers)),
 				A2(
 					$elm$core$Set$union,
-					$elm$core$Set$fromList(head.offers),
-					$elm$core$Set$fromList(head.needs)));
+					$elm$core$Set$fromList(
+						A2($elm$core$List$map, $elm$core$Tuple$first, head.needs)),
+					getBonds(tail)));
 		}
 	};
 	return A2(
@@ -3517,10 +3567,10 @@ var $author$project$TestItem$listToItemFilter = A2(
 			{
 				bonds: $elm$core$Set$fromList(
 					_List_fromArray(
-						['oxygen', 'fuel', 'heat', 'smoke', 'cool', 'moisture'])),
+						['Oxygen', 'Fuel', 'Heat', 'Smoke', 'Cool', 'Moisture'])),
 				tags: $elm$core$Set$fromList(
 					_List_fromArray(
-						['reaction', 'element', 'fluid', 'solid']))
+						['Reaction', 'Element', 'Fluid', 'Solid']))
 			},
 			$author$project$Item$listToItemFilter(
 				$author$project$Item$toItemList($author$project$TestItem$testCsv)));
@@ -3586,12 +3636,14 @@ var $author$project$Item$partitionByFilter = F2(
 				} else {
 					var t = tags.a;
 					var ts = tags.b;
-					return A2(
+					return A2(matchesTags, ts, item) && A2(
 						$elm$core$List$member,
 						t,
 						_Utils_ap(
-							item.tags,
-							_Utils_ap(item.needs, item.offers))) && A2(matchesTags, ts, item);
+							A2($elm$core$List$map, $elm$core$Tuple$first, item.offers),
+							_Utils_ap(
+								A2($elm$core$List$map, $elm$core$Tuple$first, item.needs),
+								item.tags)));
 				}
 			});
 		return A2(
@@ -3602,39 +3654,58 @@ var $author$project$Item$partitionByFilter = F2(
 var $author$project$TestItem$partitionByFilter = function () {
 	var water = A4(
 		$author$project$Item$Item,
-		'water',
+		'Water',
 		_List_fromArray(
-			['fluid', 'element']),
+			['Fluid', 'Element']),
 		_List_fromArray(
-			['cool']),
+			[
+				_Utils_Tuple2('Cool', 1)
+			]),
 		_List_fromArray(
-			['moisture']));
+			[
+				_Utils_Tuple2('Moisture', 3)
+			]));
 	var fire = A4(
 		$author$project$Item$Item,
-		'fire',
+		'Fire',
 		_List_fromArray(
-			['reaction', 'element']),
+			['Reaction', 'Element']),
 		_List_fromArray(
-			['oxygen', 'fuel', 'heat']),
+			[
+				_Utils_Tuple2('Oxygen', 1),
+				_Utils_Tuple2('Fuel', 2),
+				_Utils_Tuple2('Heat', 1)
+			]),
 		_List_fromArray(
-			['heat', 'smoke']));
+			[
+				_Utils_Tuple2('Heat', 2),
+				_Utils_Tuple2('Smoke', 2)
+			]));
 	var earth = A4(
 		$author$project$Item$Item,
-		'earth',
+		'Earth',
 		_List_fromArray(
-			['solid', 'element']),
+			['Solid', 'Element']),
 		_List_fromArray(
-			['smoke', 'moisture', 'oxygen']),
+			[
+				_Utils_Tuple2('Oxygen', 1),
+				_Utils_Tuple2('Smoke', 1),
+				_Utils_Tuple2('Moisture', 2)
+			]),
 		_List_fromArray(
-			['fuel']));
+			[
+				_Utils_Tuple2('Fuel', 1)
+			]));
 	var air = A4(
 		$author$project$Item$Item,
-		'air',
+		'Air',
 		_List_fromArray(
-			['fluid', 'element']),
+			['Fluid', 'Element']),
 		_List_Nil,
 		_List_fromArray(
-			['oxygen']));
+			[
+				_Utils_Tuple2('Oxygen', 3)
+			]));
 	return A2(
 		$elm_explorations$test$Test$test,
 		'item list should be split into items with ALL tags and items without',
@@ -3649,7 +3720,7 @@ var $author$project$TestItem$partitionByFilter = function () {
 				A2(
 					$author$project$Item$partitionByFilter,
 					_List_fromArray(
-						['fluid', 'oxygen']),
+						['Fluid', 'Oxygen']),
 					$author$project$Item$toItemList($author$project$TestItem$testCsv)));
 		});
 }();
@@ -7919,250 +7990,6 @@ var $author$project$Test$Runner$Node$run = F2(
 				});
 		}
 	});
-var $author$project$Scorer$getSupport = F2(
-	function (item_1, item_2) {
-		var _v0 = item_1.offers;
-		if (!_v0.b) {
-			return 0;
-		} else {
-			var x = _v0.a;
-			var xs = _v0.b;
-			return (A2($elm$core$List$member, x, item_2.needs) ? 1 : 0) + A2(
-				$author$project$Scorer$getSupport,
-				_Utils_update(
-					item_1,
-					{offers: xs}),
-				item_2);
-		}
-	});
-var $author$project$Scorer$scoreRemoval = F2(
-	function (item, item_list) {
-		var getSynergy = F2(
-			function (item_1, item_2) {
-				return A2($author$project$Scorer$getSupport, item_1, item_2) + A2($author$project$Scorer$getSupport, item_2, item_1);
-			});
-		return A3(
-			$elm$core$List$foldl,
-			$elm$core$Basics$add,
-			0,
-			A2(
-				$elm$core$List$map,
-				getSynergy(item),
-				A2(
-					$elm$core$List$filter,
-					function (x) {
-						return !_Utils_eq(x, item);
-					},
-					item_list)));
-	});
-var $author$project$Scorer$scoreList = function (item_list) {
-	if (!item_list.b) {
-		return 0;
-	} else {
-		var x = item_list.a;
-		var xs = item_list.b;
-		return A2($author$project$Scorer$scoreRemoval, x, xs) + $author$project$Scorer$scoreList(xs);
-	}
-};
-var $author$project$TestScorer$testAir = {
-	name: 'air',
-	needs: _List_Nil,
-	offers: _List_fromArray(
-		['oxygen']),
-	tags: _List_fromArray(
-		['fluid'])
-};
-var $author$project$TestScorer$testEarth = {
-	name: 'earth',
-	needs: _List_fromArray(
-		['smoke', 'moisture', 'oxygen']),
-	offers: _List_fromArray(
-		['fuel']),
-	tags: _List_fromArray(
-		['solid'])
-};
-var $author$project$TestScorer$testFire = {
-	name: 'fire',
-	needs: _List_fromArray(
-		['oxygen', 'fuel', 'heat']),
-	offers: _List_fromArray(
-		['heat', 'smoke']),
-	tags: _List_fromArray(
-		['reaction'])
-};
-var $author$project$TestScorer$testWater = {
-	name: 'water',
-	needs: _List_fromArray(
-		['cool']),
-	offers: _List_fromArray(
-		['moisture']),
-	tags: _List_fromArray(
-		['fluid'])
-};
-var $author$project$TestScorer$testItemList = _List_fromArray(
-	[$author$project$TestScorer$testFire, $author$project$TestScorer$testWater, $author$project$TestScorer$testAir, $author$project$TestScorer$testEarth]);
-var $author$project$TestScorer$scoreList = A2(
-	$elm_explorations$test$Test$test,
-	'scoreList should add up all synergies in list',
-	function (_v0) {
-		return A2(
-			$elm_explorations$test$Expect$equal,
-			5,
-			$author$project$Scorer$scoreList($author$project$TestScorer$testItemList));
-	});
-var $author$project$TestScorer$scoreRemoval = A2(
-	$elm_explorations$test$Test$test,
-	'scoreRemoval should not synergize item with itself',
-	function (_v0) {
-		return A2(
-			$elm_explorations$test$Expect$equal,
-			3,
-			A2($author$project$Scorer$scoreRemoval, $author$project$TestScorer$testFire, $author$project$TestScorer$testItemList));
-	});
-var $author$project$Scorer$scoreNeedsVerbose = F2(
-	function (item, item_list) {
-		var _v0 = item.needs;
-		if (!_v0.b) {
-			return _List_Nil;
-		} else {
-			var x = _v0.a;
-			var xs = _v0.b;
-			return function (sum) {
-				return A2(
-					$elm$core$List$cons,
-					_Utils_Tuple2(x, sum),
-					A2(
-						$author$project$Scorer$scoreNeedsVerbose,
-						_Utils_update(
-							item,
-							{needs: xs}),
-						item_list));
-			}(
-				A3(
-					$elm$core$List$foldl,
-					$elm$core$Basics$add,
-					0,
-					A2(
-						$elm$core$List$map,
-						function (candidate_item) {
-							return A2($elm$core$List$member, x, candidate_item.offers) ? 1 : 0;
-						},
-						item_list)));
-		}
-	});
-var $author$project$Scorer$scoreOffersVerbose = F2(
-	function (item, item_list) {
-		var _v0 = item.offers;
-		if (!_v0.b) {
-			return _List_Nil;
-		} else {
-			var x = _v0.a;
-			var xs = _v0.b;
-			return function (sum) {
-				return A2(
-					$elm$core$List$cons,
-					_Utils_Tuple2(x, sum),
-					A2(
-						$author$project$Scorer$scoreOffersVerbose,
-						_Utils_update(
-							item,
-							{offers: xs}),
-						item_list));
-			}(
-				A3(
-					$elm$core$List$foldl,
-					$elm$core$Basics$add,
-					0,
-					A2(
-						$elm$core$List$map,
-						function (candidate_item) {
-							return A2($elm$core$List$member, x, candidate_item.needs) ? 1 : 0;
-						},
-						item_list)));
-		}
-	});
-var $author$project$Scorer$scoreRemovalVerbose = F2(
-	function (item, item_list) {
-		return function (other_items) {
-			return {
-				name: item.name,
-				needs: A2($author$project$Scorer$scoreNeedsVerbose, item, other_items),
-				offers: A2($author$project$Scorer$scoreOffersVerbose, item, other_items)
-			};
-		}(
-			A2(
-				$elm$core$List$filter,
-				function (x) {
-					return !_Utils_eq(x, item);
-				},
-				item_list));
-	});
-var $author$project$TestScorer$scoreRemovalVerbose = A2(
-	$elm_explorations$test$Test$test,
-	'scoreRemovalVerbose should list amount of points for each synergy',
-	function (_v0) {
-		return A2(
-			$elm_explorations$test$Expect$equal,
-			{
-				name: 'fire',
-				needs: _List_fromArray(
-					[
-						_Utils_Tuple2('oxygen', 1),
-						_Utils_Tuple2('fuel', 1),
-						_Utils_Tuple2('heat', 0)
-					]),
-				offers: _List_fromArray(
-					[
-						_Utils_Tuple2('heat', 0),
-						_Utils_Tuple2('smoke', 1)
-					])
-			},
-			A2($author$project$Scorer$scoreRemovalVerbose, $author$project$TestScorer$testFire, $author$project$TestScorer$testItemList));
-	});
-var $author$project$Scorer$sortByMargin = F2(
-	function (target_list, reference_list) {
-		return $elm$core$List$reverse(
-			A2(
-				$elm$core$List$sortBy,
-				function (x) {
-					return A2($author$project$Scorer$scoreRemoval, x, reference_list);
-				},
-				target_list));
-	});
-var $author$project$TestScorer$sortByMargin = A2(
-	$elm_explorations$test$Test$test,
-	'sortByMargin sorts items in descending order by score margin against another list of items',
-	function (_v0) {
-		return A2(
-			$elm_explorations$test$Expect$equal,
-			_List_fromArray(
-				[$author$project$TestScorer$testFire, $author$project$TestScorer$testAir, $author$project$TestScorer$testWater]),
-			A2(
-				$author$project$Scorer$sortByMargin,
-				_List_fromArray(
-					[$author$project$TestScorer$testFire, $author$project$TestScorer$testWater, $author$project$TestScorer$testAir]),
-				$author$project$TestScorer$testItemList));
-	});
-var $author$project$TestMain$testCsv = 'fire,reaction,-oxygen,-fuel,+heat,+smoke\nwater,fluid,-cool,+moisture,,\nair,fluid,+oxygen,,,\nearth,solid,-smoke,-moisture,-oxygen,+fuel';
-var $author$project$TestItem$testFire = 'fire,reaction,element,-oxygen,-fuel,-heat,+heat,+smoke';
-var $author$project$TestItem$toItem = A2(
-	$elm_explorations$test$Test$test,
-	'item should be fire',
-	function (_v0) {
-		return A2(
-			$elm_explorations$test$Expect$equal,
-			$elm$core$Maybe$Just(
-				{
-					name: 'fire',
-					needs: _List_fromArray(
-						['oxygen', 'fuel', 'heat']),
-					offers: _List_fromArray(
-						['heat', 'smoke']),
-					tags: _List_fromArray(
-						['reaction', 'element'])
-				}),
-			$author$project$Item$toItem($author$project$TestItem$testFire));
-	});
 var $author$project$TestItem$toItemList = A2(
 	$elm_explorations$test$Test$test,
 	'item list should contain correct items',
@@ -8172,39 +7999,58 @@ var $author$project$TestItem$toItemList = A2(
 			_List_fromArray(
 				[
 					{
-					name: 'fire',
+					name: 'Fire',
 					needs: _List_fromArray(
-						['oxygen', 'fuel', 'heat']),
+						[
+							_Utils_Tuple2('Oxygen', 1),
+							_Utils_Tuple2('Fuel', 2),
+							_Utils_Tuple2('Heat', 1)
+						]),
 					offers: _List_fromArray(
-						['heat', 'smoke']),
+						[
+							_Utils_Tuple2('Heat', 2),
+							_Utils_Tuple2('Smoke', 2)
+						]),
 					tags: _List_fromArray(
-						['reaction', 'element'])
+						['Reaction', 'Element'])
 				},
 					{
-					name: 'water',
+					name: 'Water',
 					needs: _List_fromArray(
-						['cool']),
+						[
+							_Utils_Tuple2('Cool', 1)
+						]),
 					offers: _List_fromArray(
-						['moisture']),
+						[
+							_Utils_Tuple2('Moisture', 3)
+						]),
 					tags: _List_fromArray(
-						['fluid', 'element'])
+						['Fluid', 'Element'])
 				},
 					{
-					name: 'air',
+					name: 'Air',
 					needs: _List_Nil,
 					offers: _List_fromArray(
-						['oxygen']),
+						[
+							_Utils_Tuple2('Oxygen', 3)
+						]),
 					tags: _List_fromArray(
-						['fluid', 'element'])
+						['Fluid', 'Element'])
 				},
 					{
-					name: 'earth',
+					name: 'Earth',
 					needs: _List_fromArray(
-						['smoke', 'moisture', 'oxygen']),
+						[
+							_Utils_Tuple2('Oxygen', 1),
+							_Utils_Tuple2('Smoke', 1),
+							_Utils_Tuple2('Moisture', 2)
+						]),
 					offers: _List_fromArray(
-						['fuel']),
+						[
+							_Utils_Tuple2('Fuel', 1)
+						]),
 					tags: _List_fromArray(
-						['solid', 'element'])
+						['Solid', 'Element'])
 				}
 				]),
 			$author$project$Item$toItemList($author$project$TestItem$testCsv));
@@ -8212,13 +8058,14 @@ var $author$project$TestItem$toItemList = A2(
 var $author$project$Test$Generated$Main$main = A2(
 	$author$project$Test$Runner$Node$run,
 	{
-		globs: _List_Nil,
+		globs: _List_fromArray(
+			['tests/TestItem.elm']),
 		paths: _List_fromArray(
-			['E:\\GitHub\\synergy_finder\\tests\\TestItem.elm', 'E:\\GitHub\\synergy_finder\\tests\\TestMain.elm', 'E:\\GitHub\\synergy_finder\\tests\\TestScorer.elm']),
+			['E:\\GitHub\\synergy_finder\\tests\\TestItem.elm']),
 		processes: 8,
 		report: $author$project$Test$Reporter$Reporter$ConsoleReport($author$project$Console$Text$Monochrome),
 		runs: 100,
-		seed: 36452772960305
+		seed: 183609930830771
 	},
 	_List_fromArray(
 		[
@@ -8227,38 +8074,16 @@ var $author$project$Test$Generated$Main$main = A2(
 			_List_fromArray(
 				[
 					$author$project$Test$Runner$Node$check($author$project$TestItem$testCsv),
-					$author$project$Test$Runner$Node$check($author$project$TestItem$testFire),
-					$author$project$Test$Runner$Node$check($author$project$TestItem$toItem),
 					$author$project$Test$Runner$Node$check($author$project$TestItem$toItemList),
 					$author$project$Test$Runner$Node$check($author$project$TestItem$listToItemFilter),
 					$author$project$Test$Runner$Node$check($author$project$TestItem$getTagsFromList),
 					$author$project$Test$Runner$Node$check($author$project$TestItem$partitionByFilter)
-				])),
-			_Utils_Tuple2(
-			'TestMain',
-			_List_fromArray(
-				[
-					$author$project$Test$Runner$Node$check($author$project$TestMain$testCsv)
-				])),
-			_Utils_Tuple2(
-			'TestScorer',
-			_List_fromArray(
-				[
-					$author$project$Test$Runner$Node$check($author$project$TestScorer$testFire),
-					$author$project$Test$Runner$Node$check($author$project$TestScorer$testWater),
-					$author$project$Test$Runner$Node$check($author$project$TestScorer$testAir),
-					$author$project$Test$Runner$Node$check($author$project$TestScorer$testEarth),
-					$author$project$Test$Runner$Node$check($author$project$TestScorer$testItemList),
-					$author$project$Test$Runner$Node$check($author$project$TestScorer$sortByMargin),
-					$author$project$Test$Runner$Node$check($author$project$TestScorer$scoreRemoval),
-					$author$project$Test$Runner$Node$check($author$project$TestScorer$scoreList),
-					$author$project$Test$Runner$Node$check($author$project$TestScorer$scoreRemovalVerbose)
 				]))
 		]));
 _Platform_export({'Test':{'Generated':{'Main':{'init':$author$project$Test$Generated$Main$main($elm$json$Json$Decode$int)(0)}}}});}(this));
 return this.Elm;
 })({});
-var pipeFilename = "\\\\.\\pipe\\elm_test-20576-1";
+var pipeFilename = "\\\\.\\pipe\\elm_test-20236-1";
 var net = require('net'),
   client = net.createConnection(pipeFilename);
 

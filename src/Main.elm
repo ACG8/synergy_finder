@@ -160,7 +160,7 @@ update msg model =
     ShowSynergySummary item ->
       let old_app = model.app in
       ( { model | app =
-          { old_app | summary = Just <| scoreRemovalVerbose item old_app.selected }
+          { old_app | summary = Just <| getSynergySummary item old_app.selected }
         }
       , Cmd.none
       )
@@ -266,7 +266,7 @@ tableSynergy title target_items app =
         [ padding 5
         , Font.alignRight
         ]
-        <| text (String.fromInt <| Scorer.scoreRemoval item app.selected)
+        <| text (String.fromInt <| Scorer.scoreItem item app.selected)
 
     synergy_bonus_column =
       { header = none
@@ -281,7 +281,7 @@ tableSynergy title target_items app =
         , ("Synergy", 1)
         ]
       , table attrTable
-        { data = Scorer.sortByMargin target_items app.selected
+        { data = Scorer.sortBySynergy target_items app.selected
         , columns = [ item_name_column, synergy_bonus_column ]
         }
       ]
