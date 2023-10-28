@@ -5,6 +5,7 @@ import Html exposing (Html, button, p, div)
 import Html.Attributes exposing (style)
 import File exposing (File)
 import File.Select as Select
+import File.Download as Download
 import Task
 import Element exposing (..)
 import Element.Background as Background
@@ -76,6 +77,7 @@ type Msg
   = CsvRequested
   | CsvSelected File
   | CsvLoaded String
+  | CsvDownloaded String
   | MoveItem Item
   | ShowSynergySummary Item
   | ToggleFilter String
@@ -143,6 +145,11 @@ update msg model =
     CsvLoaded csv ->
       ( Model APPLICATION <| csvToApp csv
       , Cmd.none
+      )
+
+    CsvDownloaded csv ->
+      ( model
+      , Download.string "synergy_data.csv" "text/csv" csv
       )
 
     MoveItem item ->
@@ -390,27 +397,53 @@ sidebarLoadCsv =
       , Border.rounded 6
       , Border.width 2
       , centerX
-      , padding 20
+      , padding 10
+      , mouseOver [ alpha 0.5 ]
       ]
 
-    buttonLoadCsv = Input.button
-      attrButton
-      { onPress = Just CsvRequested
-      , label = text "Load CSV"
-      }
+    buttonLoadCsv =
+      Input.button
+        attrButton
+        { onPress = Just CsvRequested
+        , label = text "Load CSV"
+        }
 
-    buttonLoadExample name csv = Input.button
-      attrButton
-      { onPress = Just <| CsvLoaded csv
-      , label = text name
-      }
+    buttonLoadExample name csv =
+      Input.button
+        attrButton
+        { onPress = Just <| CsvLoaded csv
+        , label = text name
+        }
+
+    buttonDownloadExample csv =
+      Input.button
+        []
+        { onPress = Just <| CsvDownloaded csv
+         , label =
+            el [ clip, Border.rounded 6] <|
+              image
+                [ width <| px 40
+                , height <| px 40
+                , mouseOver [ alpha 0.5 ]
+                , alignRight
+                ]
+                { src = "https://game-icons.net/icons/ffffff/000000/1x1/delapouite/cloud-download.png"
+                , description = "Download CSV"
+                }
+        }
+    rowExampleButtonPair name csv =
+      row [ width fill ] <|
+        [ buttonLoadExample name csv
+        , buttonDownloadExample csv
+        ]
+
   in
   column
     attrSidebar
     [ buttonLoadCsv
     , el [ Font.center, width fill, padding 20 ] <| text "---EXAMPLES---"
-    , buttonLoadExample "Blood on the Clocktower" Examples.botc
-    , buttonLoadExample "Spirit Island" Examples.spirit_island
+    , rowExampleButtonPair "Blood on the Clocktower" Examples.botc
+    , rowExampleButtonPair "Spirit Island" Examples.spirit_island
     ]
 
 
