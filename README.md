@@ -9,6 +9,7 @@ In many tabletop and video games, players build a list of game components that s
 * TCGs like Pokemon, Yugioh, and Magic require players to build decks of cards before playing
 * Script-based games like Blood on the Clocktower require the gamemaster to choose roles to include
 * Many TTRPGs involve building characters by choosing from lists of traits and abilities
+* Team-based games like Spirit Island often have characters that work well or poorly together
 
 ## How to Use
 You can access the web app at https://acg8.github.io/synergy_finder/
