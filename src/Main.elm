@@ -18,6 +18,7 @@ import Set exposing (Set)
 import Item exposing (..)
 import Scorer exposing (..)
 import String.Format as Format
+import Examples exposing (..)
 
 -- MAIN
 
@@ -212,6 +213,17 @@ attrTableHeader =
   , Border.color color.blue
   ]
 
+
+attrSidebar =
+  [ height fill
+  , width <| fillPortion 1
+  , paddingXY 0 10
+  , scrollbarY
+  , Background.color color.darkCharcoal
+  , Font.color color.white
+  , Font.size 16
+  ]
+
 rowTableHeader : List (String, Int) -> Element Msg
 rowTableHeader headers_list =
   let
@@ -222,22 +234,6 @@ rowTableHeader headers_list =
     List.map getElement headers_list
 
 -- ELEMENTS
-
-loadCsvButton
-  = Input.button
-    [ Background.color color.blue
-    , Element.focused [Background.color color.orange]
-    , centerX
-    , centerY
-    , padding 30
-    , Border.width 2
-    , Border.rounded 6
-    , Border.color color.blue
-    ]
-    { onPress = Just CsvRequested
-    , label = text "Load CSV"
-    }
-
 
 tableSynergy : String -> List Item -> App -> Element Msg
 tableSynergy title target_items app =
@@ -341,19 +337,9 @@ summaryWindow app =
         ]
 
 
-filterBar : App -> Element Msg
-filterBar app =
+sidebarFilter : App -> Element Msg
+sidebarFilter app =
   let
-    attrfilterBar =
-      [ height fill
-      , width <| fillPortion 1
-      , paddingXY 0 10
-      , scrollbarY
-      , Background.color color.darkCharcoal
-      , Font.color color.white
-      , Font.size 16
-      ]
-
     attrButtonExtra tag =
       if List.member tag app.active_filters
         then [ Background.color color.orange ]
@@ -386,9 +372,45 @@ filterBar app =
       |> List.map tagButton
   in
   column
-    attrfilterBar
+    attrSidebar
     [ column [ height fill ] buttonListTags
     , column [ height fill ] buttonListBonds
+    ]
+
+
+sidebarLoadCsv : Element Msg
+sidebarLoadCsv =
+  let
+    attrButton =
+      [ width fill
+      , Font.center
+      , Background.color color.blue
+      , Element.focused [Background.color color.orange]
+      , Border.color color.darkCharcoal
+      , Border.rounded 6
+      , Border.width 2
+      , centerX
+      , padding 20
+      ]
+
+    buttonLoadCsv = Input.button
+      attrButton
+      { onPress = Just CsvRequested
+      , label = text "Load CSV"
+      }
+
+    buttonLoadExample name csv = Input.button
+      attrButton
+      { onPress = Just <| CsvLoaded csv
+      , label = text name
+      }
+  in
+  column
+    attrSidebar
+    [ buttonLoadCsv
+    , el [ Font.center, width fill, padding 20 ] <| text "---EXAMPLES---"
+    , buttonLoadExample "Blood on the Clocktower" Examples.botc
+    , buttonLoadExample "Spirit Island" Examples.spirit_island
     ]
 
 
@@ -396,14 +418,21 @@ filterBar app =
 
 pageWelcome : Html Msg
 pageWelcome =
-  layout [] loadCsvButton
+  layout [ width fill, height fill ] <|
+    row [width fill, height fill] <|
+      [ sidebarLoadCsv
+      , el
+        [ width <|
+          fillPortion 4 ] <|
+          text "foo"
+      ]
 
 pageApplication : App -> Html Msg
 pageApplication app =
   layout [ width fill, height fill ]
     <| row [ width fill , height fill ]
     <|
-      [ filterBar app
+      [ sidebarFilter app
       , column
         [ width <| fillPortion 4
         , height fill
