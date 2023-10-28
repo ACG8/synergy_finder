@@ -1,6 +1,6 @@
 module Main exposing (..)
 
-import Browser
+import Browser exposing (Document)
 import Html exposing (Html, button, p, div)
 import Html.Attributes exposing (style)
 import File exposing (File)
@@ -23,7 +23,7 @@ import String.Format as Format
 
 
 main =
-  Browser.element
+  Browser.document
     { init = init
     , update = update
     , view = view
@@ -417,14 +417,20 @@ pageApplication app =
 
 -- VIEW
 
-view : Model -> Html Msg
+view : Model -> Document Msg
 view model =
-  case model.current_page of
-    WELCOME ->
-      pageWelcome
+  let
+    html =
+      case model.current_page of
+        WELCOME ->
+          pageWelcome
 
-    APPLICATION ->
-      pageApplication <| filterItems model.app
+        APPLICATION ->
+          pageApplication <| filterItems model.app
+  in
+  { title = "Synergy Finder"
+  , body = [ html ]
+  }
 
 
 -- SUBSCRIPTIONS
