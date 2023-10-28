@@ -14,6 +14,7 @@ import Element.Events as Events
 import Element.Font as Font
 import Element.Input as Input
 import Set exposing (Set)
+import Markdown exposing (..)
 
 
 import Item exposing (..)
@@ -454,10 +455,12 @@ pageWelcome =
   layout [ width fill, height fill ] <|
     row [width fill, height fill] <|
       [ sidebarLoadCsv
-      , el
-        [ width <|
-          fillPortion 4 ] <|
-          text "foo"
+      , textColumn
+        [ width <| fillPortion 4
+        , padding 20
+        , spacing 20
+        ]
+        ( List.map ( \string -> paragraph [] [ text string ] ) instructions )
       ]
 
 pageApplication : App -> Html Msg
@@ -501,3 +504,21 @@ view model =
 subscriptions : Model -> Sub Msg
 subscriptions _ =
   Sub.none
+
+
+-- CONTENT
+
+instructions =
+  [ "Synergy Finder:"
+  , "This web app is intended to help find synergies between different items when building a list of items."
+  , "In many tabletop and video games, players build a list of game components that synergize. Synergy Finder helps uncover links between different items when making such lists."
+  , "Example use cases:"
+  , "- TCGs like Pokemon, Yugioh, and Magic require players to build decks of cards before playing"
+  , "- Script-based games like Blood on the Clocktower require the gamemaster to choose roles to include"
+  , "- Many TTRPGs involve building characters by choosing from lists of traits and abilities"
+  , "- Team-based games like Spirit Island often have characters that work well or poorly together"
+  , "To use the app, you must provide data as a CSV file. The data that you upload must be in the form of a CSV (comma-separated value) file."
+  , "Each column in the file must have a name at the top, and the leftmost column is reserved for names or identifiers of the items to be selected."
+  , "Use a '+' to indicate that an attribute is an offer (something the item provides) and a '/' to indicate that it is a need (something from which the item benefits. The number of '+' or '/' symbols corresponds to the strength of the offer or need, and an item may have both an offer and the corresponding need."
+  , "Note: If the app is not responsive, try disabling your browser extensions"
+  ]
