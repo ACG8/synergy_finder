@@ -380,8 +380,8 @@ sidebarFilter app =
   in
   column
     attrSidebar
-    [ column [ height fill ] buttonListTags
-    , column [ height fill ] buttonListBonds
+    [ column [ height fill, width fill] buttonListTags
+    , column [ height fill, width fill ] buttonListBonds
     ]
 
 
