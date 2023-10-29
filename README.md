@@ -25,3 +25,6 @@ The data that you upload to the up must be in the form of a CSV (comma-separated
 * Offers are prefixed by a "+" and represent characteristics of that item which benefit certain other items
 
 The synergy score of any given item is equal to the number of needs met by its offers and the number of offers that satisfy its needs (among the other items in the "selected" list)
+
+## Credits
+Credit goes to game-icons.net for use of their images.
