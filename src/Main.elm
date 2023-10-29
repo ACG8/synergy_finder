@@ -81,6 +81,7 @@ type Msg
   | CsvDownloaded String
   | MoveItem Item
   | ShowSynergySummary Item
+  | HideSynergySummary
   | ToggleFilter String
 
 
@@ -166,6 +167,15 @@ update msg model =
       , Cmd.none
       )
 
+    HideSynergySummary ->
+      let old_app = model.app in
+      ( { model | app =
+          { old_app | summary = Nothing }
+        }
+      , Cmd.none
+      )
+
+
     ToggleFilter tag ->
       let
         app = model.app
@@ -201,6 +211,7 @@ attrTableBox =
   , Border.width 2
   , Border.rounded 6
   , Border.color color.blue
+  , Events.onMouseLeave HideSynergySummary
   ]
 
 attrTable =
@@ -219,6 +230,7 @@ attrTableHeader =
   , Font.color color.darkCharcoal
   , Border.widthEach { bottom = 2, top = 0, left = 0, right = 0 }
   , Border.color color.blue
+  , padding 5
   ]
 
 
@@ -232,11 +244,11 @@ attrSidebar =
   , Font.size 16
   ]
 
-rowTableHeader : List (String, Int) -> Element Msg
+rowTableHeader : List (String, List (Attribute Msg)) -> Element Msg
 rowTableHeader headers_list =
   let
-    getElement (title, portion) =
-      el (( width <| fillPortion portion ) :: attrTableHeader) <| text title
+    getElement (title, attributes) =
+      el (attributes ++ attrTableHeader) <| text title
   in
   row [ width fill ] <|
     List.map getElement headers_list
@@ -251,6 +263,7 @@ tableSynergy title target_items app =
         [ padding 5
         , width fill
         , Events.onMouseEnter <| ShowSynergySummary item
+        , mouseOver [ moveRight 15 ]
         ]
         { onPress = Just (MoveItem item)
         , label = text item.name
@@ -278,8 +291,14 @@ tableSynergy title target_items app =
     column
       attrTableBox
       [ rowTableHeader
-        [ (title, 3)
-        , ("Synergy", 1)
+        [ ( title
+          , [ width <| fillPortion 3 ]
+          )
+        , ( "Synergy"
+          , [ width <| fillPortion 1
+            , Font.alignRight
+            ]
+          )
         ]
       , table attrTable
         { data = Scorer.sortBySynergy target_items app.selected
@@ -317,8 +336,14 @@ tableSummary title scores =
   column
     attrTableBox
     [ rowTableHeader
-      [ (title, 3)
-      , ("Synergy", 1)
+      [ ( title
+        , [ width <| fillPortion 3 ]
+        )
+      , ( "Synergy"
+        , [ width <| fillPortion 1
+          , Font.alignRight
+          ]
+        )
       ]
     , table attrTable
       { data = scores
@@ -335,13 +360,13 @@ summaryWindow app =
     ]
     <| case app.summary of
       Nothing ->
-        [ tableSummary "Needs" []
-        , tableSummary "Offers" []
+        [ tableSummary " " []
+        , tableSummary " " []
         ]
 
       Just summary ->
-        [ tableSummary "Needs" summary.needs
-        , tableSummary "Offers" summary.offers
+        [ tableSummary (summary.name ++ " Needs") summary.needs
+        , tableSummary (summary.name ++ " Offers") summary.offers
         ]
 
 
