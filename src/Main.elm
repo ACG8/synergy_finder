@@ -42,6 +42,7 @@ type alias App =
   , selected : List Item
   , summary : Maybe SynergySummary
   , active_filters : List String
+  , custom_filter : String
   }
 
 
@@ -59,13 +60,13 @@ type alias Model =
 csvToApp : String -> App
 csvToApp csv =
   toItemList csv
-  |> \items -> App [] items [] Nothing []
+  |> \items -> App [] items [] Nothing [] ""
 
 
 init : () -> (Model, Cmd Msg)
 init _ =
   ( { current_page = WELCOME
-    , app = App [] [] [] Nothing []
+    , app = App [] [] [] Nothing [] ""
     }
   , Cmd.none
   )
@@ -83,6 +84,7 @@ type Msg
   | ShowSynergySummary Item
   | HideSynergySummary
   | ToggleFilter String
+  | SetCustomFilter String
 
 
 clearItem : Item -> App -> App
@@ -92,6 +94,7 @@ clearItem item app =
   , selected = List.filter (\x -> x /= item) app.selected
   , summary = Nothing
   , active_filters = app.active_filters
+  , custom_filter = app.custom_filter
   }
 
 
@@ -122,11 +125,18 @@ moveItem item app =
 
 filterItems : App -> App
 filterItems app =
+  let
+    customFilter : List Item -> List Item
+    customFilter =
+      (\item -> String.contains app.custom_filter item.name)
+      |> List.filter
+  in
+
   app.hidden ++ app.unselected
   |> Item.partitionByFilter app.active_filters
   |> \partitioned_items ->
     { app
-    | unselected = Tuple.first partitioned_items
+    | unselected = customFilter <| Tuple.first partitioned_items
     , hidden = Tuple.second partitioned_items
     }
 
@@ -175,6 +185,13 @@ update msg model =
       , Cmd.none
       )
 
+    SetCustomFilter new_filter ->
+      let old_app = model.app in
+      ( { model | app =
+          { old_app | custom_filter = new_filter }
+        }
+      , Cmd.none
+      )
 
     ToggleFilter tag ->
       let
@@ -403,10 +420,18 @@ sidebarFilter app =
       item_filter.bonds
       |> Set.toList
       |> List.map tagButton
+
+    filter_box =
+      Input.text [ width fill, Font.color color.darkCharcoal ]
+      { onChange = SetCustomFilter
+      , text = app.custom_filter
+      , placeholder = Just <| Input.placeholder [] <| text "Filter Items"
+      , label = Input.labelAbove [] <| text ""}
   in
   column
     attrSidebar
-    [ column [ height fill, width fill] buttonListTags
+    [ filter_box
+    , column [ height fill, width fill] buttonListTags
     , column [ height fill, width fill ] buttonListBonds
     ]
 
@@ -470,6 +495,7 @@ sidebarLoadCsv =
     , el [ Font.center, width fill, padding 20 ] <| text "---EXAMPLES---"
     , rowExampleButtonPair "Blood on the Clocktower" Examples.botc
     , rowExampleButtonPair "Spirit Island" Examples.spirit_island
+    , rowExampleButtonPair "Duelyst 2" Examples.duelyst2
     ]
 
 

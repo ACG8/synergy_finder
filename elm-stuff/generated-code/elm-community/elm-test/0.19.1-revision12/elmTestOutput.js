@@ -2685,15 +2685,7 @@ var $elm_explorations$test$Expect$equateWith = F4(
 		return usesFloats ? $elm_explorations$test$Expect$fail(floatError) : A5($elm_explorations$test$Expect$testWith, $elm_explorations$test$Test$Runner$Failure$Equality, reason, comparison, b, a);
 	});
 var $elm_explorations$test$Expect$equal = A2($elm_explorations$test$Expect$equateWith, 'Expect.equal', $elm$core$Basics$eq);
-var $elm$core$Basics$identity = function (x) {
-	return x;
-};
-var $elm$core$Set$Set_elm_builtin = function (a) {
-	return {$: 'Set_elm_builtin', a: a};
-};
-var $elm$core$Dict$RBEmpty_elm_builtin = {$: 'RBEmpty_elm_builtin'};
-var $elm$core$Dict$empty = $elm$core$Dict$RBEmpty_elm_builtin;
-var $elm$core$Set$empty = $elm$core$Set$Set_elm_builtin($elm$core$Dict$empty);
+var $elm$core$Basics$add = _Basics_add;
 var $elm$core$List$foldl = F3(
 	function (func, acc, list) {
 		foldl:
@@ -2713,6 +2705,332 @@ var $elm$core$List$foldl = F3(
 			}
 		}
 	});
+var $elm$core$Basics$gt = _Utils_gt;
+var $elm$core$List$reverse = function (list) {
+	return A3($elm$core$List$foldl, $elm$core$List$cons, _List_Nil, list);
+};
+var $elm$core$List$foldrHelper = F4(
+	function (fn, acc, ctr, ls) {
+		if (!ls.b) {
+			return acc;
+		} else {
+			var a = ls.a;
+			var r1 = ls.b;
+			if (!r1.b) {
+				return A2(fn, a, acc);
+			} else {
+				var b = r1.a;
+				var r2 = r1.b;
+				if (!r2.b) {
+					return A2(
+						fn,
+						a,
+						A2(fn, b, acc));
+				} else {
+					var c = r2.a;
+					var r3 = r2.b;
+					if (!r3.b) {
+						return A2(
+							fn,
+							a,
+							A2(
+								fn,
+								b,
+								A2(fn, c, acc)));
+					} else {
+						var d = r3.a;
+						var r4 = r3.b;
+						var res = (ctr > 500) ? A3(
+							$elm$core$List$foldl,
+							fn,
+							acc,
+							$elm$core$List$reverse(r4)) : A4($elm$core$List$foldrHelper, fn, acc, ctr + 1, r4);
+						return A2(
+							fn,
+							a,
+							A2(
+								fn,
+								b,
+								A2(
+									fn,
+									c,
+									A2(fn, d, res))));
+					}
+				}
+			}
+		}
+	});
+var $elm$core$List$foldr = F3(
+	function (fn, acc, ls) {
+		return A4($elm$core$List$foldrHelper, fn, acc, 0, ls);
+	});
+var $elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			$elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
+	});
+var $elm$core$Tuple$first = function (_v0) {
+	var x = _v0.a;
+	return x;
+};
+var $elm$core$List$map = F2(
+	function (f, xs) {
+		return A3(
+			$elm$core$List$foldr,
+			F2(
+				function (x, acc) {
+					return A2(
+						$elm$core$List$cons,
+						f(x),
+						acc);
+				}),
+			_List_Nil,
+			xs);
+	});
+var $elm$core$Basics$mul = _Basics_mul;
+var $elm$core$Basics$neq = _Utils_notEqual;
+var $elm$core$Tuple$second = function (_v0) {
+	var y = _v0.b;
+	return y;
+};
+var $author$project$Scorer$getSynergySummary = F2(
+	function (item, item_list) {
+		var getBondStrength = F2(
+			function (bond_name, bond_list) {
+				getBondStrength:
+				while (true) {
+					if (!bond_list.b) {
+						return 0;
+					} else {
+						var bond = bond_list.a;
+						var tail = bond_list.b;
+						if (_Utils_eq(bond.a, bond_name)) {
+							return bond.b;
+						} else {
+							var $temp$bond_name = bond_name,
+								$temp$bond_list = tail;
+							bond_name = $temp$bond_name;
+							bond_list = $temp$bond_list;
+							continue getBondStrength;
+						}
+					}
+				}
+			});
+		var getTotalBondStrength = F2(
+			function (bond_lists, bond_name) {
+				return A3(
+					$elm$core$List$foldl,
+					$elm$core$Basics$add,
+					0,
+					A2(
+						$elm$core$List$map,
+						getBondStrength(bond_name),
+						bond_lists));
+			});
+		var scoreNeedsVerbose = F2(
+			function (needs, items) {
+				if (!needs.b) {
+					return _List_Nil;
+				} else {
+					var head = needs.a;
+					var tail = needs.b;
+					var value = head.b;
+					var name = head.a;
+					return function (product) {
+						return A2(
+							$elm$core$List$cons,
+							_Utils_Tuple2(name, product),
+							A2(scoreNeedsVerbose, tail, items));
+					}(
+						value * A2(
+							getTotalBondStrength,
+							A2(
+								$elm$core$List$map,
+								function ($) {
+									return $.offers;
+								},
+								items),
+							name));
+				}
+			});
+		var scoreOffersVerbose = F2(
+			function (offers, items) {
+				if (!offers.b) {
+					return _List_Nil;
+				} else {
+					var head = offers.a;
+					var tail = offers.b;
+					var value = head.b;
+					var name = head.a;
+					return function (product) {
+						return A2(
+							$elm$core$List$cons,
+							_Utils_Tuple2(name, product),
+							A2(scoreOffersVerbose, tail, items));
+					}(
+						value * A2(
+							getTotalBondStrength,
+							A2(
+								$elm$core$List$map,
+								function ($) {
+									return $.needs;
+								},
+								items),
+							name));
+				}
+			});
+		return function (other_items) {
+			return {
+				name: item.name,
+				needs: A2(scoreNeedsVerbose, item.needs, other_items),
+				offers: A2(scoreOffersVerbose, item.offers, other_items)
+			};
+		}(
+			A2(
+				$elm$core$List$filter,
+				$elm$core$Basics$neq(item),
+				item_list));
+	});
+var $elm_explorations$test$Test$Internal$ElmTestVariant__Labeled = F2(
+	function (a, b) {
+		return {__elmTestSymbol: __elmTestSymbol, $: 'ElmTestVariant__Labeled', a: a, b: b};
+	});
+var $elm_explorations$test$Test$Internal$ElmTestVariant__UnitTest = function (a) {
+	return {__elmTestSymbol: __elmTestSymbol, $: 'ElmTestVariant__UnitTest', a: a};
+};
+var $elm_explorations$test$Test$Runner$Failure$BadDescription = {$: 'BadDescription'};
+var $elm_explorations$test$Test$Runner$Failure$Invalid = function (a) {
+	return {$: 'Invalid', a: a};
+};
+var $elm_explorations$test$Test$Internal$failNow = function (record) {
+	return $elm_explorations$test$Test$Internal$ElmTestVariant__UnitTest(
+		function (_v0) {
+			return _List_fromArray(
+				[
+					$elm_explorations$test$Test$Expectation$fail(record)
+				]);
+		});
+};
+var $elm_explorations$test$Test$Internal$blankDescriptionFailure = $elm_explorations$test$Test$Internal$failNow(
+	{
+		description: 'This test has a blank description. Let\'s give it a useful one!',
+		reason: $elm_explorations$test$Test$Runner$Failure$Invalid($elm_explorations$test$Test$Runner$Failure$BadDescription)
+	});
+var $elm$core$String$isEmpty = function (string) {
+	return string === '';
+};
+var $elm$core$String$trim = _String_trim;
+var $elm_explorations$test$Test$test = F2(
+	function (untrimmedDesc, thunk) {
+		var desc = $elm$core$String$trim(untrimmedDesc);
+		return $elm$core$String$isEmpty(desc) ? $elm_explorations$test$Test$Internal$blankDescriptionFailure : A2(
+			$elm_explorations$test$Test$Internal$ElmTestVariant__Labeled,
+			desc,
+			$elm_explorations$test$Test$Internal$ElmTestVariant__UnitTest(
+				function (_v0) {
+					return _List_fromArray(
+						[
+							thunk(_Utils_Tuple0)
+						]);
+				}));
+	});
+var $author$project$Item$Item = F4(
+	function (name, tags, needs, offers) {
+		return {name: name, needs: needs, offers: offers, tags: tags};
+	});
+var $author$project$TestScorer$testFire = A4(
+	$author$project$Item$Item,
+	'Fire',
+	_List_fromArray(
+		['Reaction', 'Element']),
+	_List_fromArray(
+		[
+			_Utils_Tuple2('Oxygen', 1),
+			_Utils_Tuple2('Fuel', 2),
+			_Utils_Tuple2('Heat', 1)
+		]),
+	_List_fromArray(
+		[
+			_Utils_Tuple2('Heat', 2),
+			_Utils_Tuple2('Smoke', 2)
+		]));
+var $author$project$TestScorer$testAir = A4(
+	$author$project$Item$Item,
+	'Air',
+	_List_fromArray(
+		['Fluid', 'Element']),
+	_List_Nil,
+	_List_fromArray(
+		[
+			_Utils_Tuple2('Oxygen', 3)
+		]));
+var $author$project$TestScorer$testEarth = A4(
+	$author$project$Item$Item,
+	'Earth',
+	_List_fromArray(
+		['Solid', 'Element']),
+	_List_fromArray(
+		[
+			_Utils_Tuple2('Oxygen', 1),
+			_Utils_Tuple2('Smoke', 1),
+			_Utils_Tuple2('Moisture', 2)
+		]),
+	_List_fromArray(
+		[
+			_Utils_Tuple2('Fuel', 1)
+		]));
+var $author$project$TestScorer$testWater = A4(
+	$author$project$Item$Item,
+	'Water',
+	_List_fromArray(
+		['Fluid', 'Element']),
+	_List_fromArray(
+		[
+			_Utils_Tuple2('Cool', 1)
+		]),
+	_List_fromArray(
+		[
+			_Utils_Tuple2('Moisture', 3)
+		]));
+var $author$project$TestScorer$testItemList = _List_fromArray(
+	[$author$project$TestScorer$testFire, $author$project$TestScorer$testWater, $author$project$TestScorer$testAir, $author$project$TestScorer$testEarth]);
+var $author$project$TestScorer$getSynergySummary = A2(
+	$elm_explorations$test$Test$test,
+	'getSynergySummary should list amount of points for each synergy',
+	function (_v0) {
+		return A2(
+			$elm_explorations$test$Expect$equal,
+			{
+				name: 'Fire',
+				needs: _List_fromArray(
+					[
+						_Utils_Tuple2('Oxygen', 3),
+						_Utils_Tuple2('Fuel', 2),
+						_Utils_Tuple2('Heat', 0)
+					]),
+				offers: _List_fromArray(
+					[
+						_Utils_Tuple2('Heat', 0),
+						_Utils_Tuple2('Smoke', 2)
+					])
+			},
+			A2($author$project$Scorer$getSynergySummary, $author$project$TestScorer$testFire, $author$project$TestScorer$testItemList));
+	});
+var $elm$core$Basics$identity = function (x) {
+	return x;
+};
+var $elm$core$Set$Set_elm_builtin = function (a) {
+	return {$: 'Set_elm_builtin', a: a};
+};
+var $elm$core$Dict$RBEmpty_elm_builtin = {$: 'RBEmpty_elm_builtin'};
+var $elm$core$Dict$empty = $elm$core$Dict$RBEmpty_elm_builtin;
+var $elm$core$Set$empty = $elm$core$Set$Set_elm_builtin($elm$core$Dict$empty);
 var $elm$core$Dict$Black = {$: 'Black'};
 var $elm$core$Dict$RBNode_elm_builtin = F5(
 	function (a, b, c, d, e) {
@@ -2879,121 +3197,7 @@ var $author$project$Item$getTagsFromList = function (item_list) {
 			$author$project$Item$getTagsFromList(rest));
 	}
 };
-var $elm_explorations$test$Test$Internal$ElmTestVariant__Labeled = F2(
-	function (a, b) {
-		return {__elmTestSymbol: __elmTestSymbol, $: 'ElmTestVariant__Labeled', a: a, b: b};
-	});
-var $elm_explorations$test$Test$Internal$ElmTestVariant__UnitTest = function (a) {
-	return {__elmTestSymbol: __elmTestSymbol, $: 'ElmTestVariant__UnitTest', a: a};
-};
-var $elm_explorations$test$Test$Runner$Failure$BadDescription = {$: 'BadDescription'};
-var $elm_explorations$test$Test$Runner$Failure$Invalid = function (a) {
-	return {$: 'Invalid', a: a};
-};
-var $elm_explorations$test$Test$Internal$failNow = function (record) {
-	return $elm_explorations$test$Test$Internal$ElmTestVariant__UnitTest(
-		function (_v0) {
-			return _List_fromArray(
-				[
-					$elm_explorations$test$Test$Expectation$fail(record)
-				]);
-		});
-};
-var $elm_explorations$test$Test$Internal$blankDescriptionFailure = $elm_explorations$test$Test$Internal$failNow(
-	{
-		description: 'This test has a blank description. Let\'s give it a useful one!',
-		reason: $elm_explorations$test$Test$Runner$Failure$Invalid($elm_explorations$test$Test$Runner$Failure$BadDescription)
-	});
-var $elm$core$String$isEmpty = function (string) {
-	return string === '';
-};
-var $elm$core$String$trim = _String_trim;
-var $elm_explorations$test$Test$test = F2(
-	function (untrimmedDesc, thunk) {
-		var desc = $elm$core$String$trim(untrimmedDesc);
-		return $elm$core$String$isEmpty(desc) ? $elm_explorations$test$Test$Internal$blankDescriptionFailure : A2(
-			$elm_explorations$test$Test$Internal$ElmTestVariant__Labeled,
-			desc,
-			$elm_explorations$test$Test$Internal$ElmTestVariant__UnitTest(
-				function (_v0) {
-					return _List_fromArray(
-						[
-							thunk(_Utils_Tuple0)
-						]);
-				}));
-	});
 var $author$project$TestItem$testCsv = 'Item,Type,Class,Oxygen,Fuel,Heat,Smoke,Moisture,Cool\nFire,Reaction,Element,/,//,++/,++,,\nWater,Fluid,Element,,,,,+++,/\nAir,Fluid,Element,+++,,,,,\nEarth,Solid,Element,/,+,,/,//,';
-var $elm$core$Basics$add = _Basics_add;
-var $elm$core$Basics$gt = _Utils_gt;
-var $elm$core$List$reverse = function (list) {
-	return A3($elm$core$List$foldl, $elm$core$List$cons, _List_Nil, list);
-};
-var $elm$core$List$foldrHelper = F4(
-	function (fn, acc, ctr, ls) {
-		if (!ls.b) {
-			return acc;
-		} else {
-			var a = ls.a;
-			var r1 = ls.b;
-			if (!r1.b) {
-				return A2(fn, a, acc);
-			} else {
-				var b = r1.a;
-				var r2 = r1.b;
-				if (!r2.b) {
-					return A2(
-						fn,
-						a,
-						A2(fn, b, acc));
-				} else {
-					var c = r2.a;
-					var r3 = r2.b;
-					if (!r3.b) {
-						return A2(
-							fn,
-							a,
-							A2(
-								fn,
-								b,
-								A2(fn, c, acc)));
-					} else {
-						var d = r3.a;
-						var r4 = r3.b;
-						var res = (ctr > 500) ? A3(
-							$elm$core$List$foldl,
-							fn,
-							acc,
-							$elm$core$List$reverse(r4)) : A4($elm$core$List$foldrHelper, fn, acc, ctr + 1, r4);
-						return A2(
-							fn,
-							a,
-							A2(
-								fn,
-								b,
-								A2(
-									fn,
-									c,
-									A2(fn, d, res))));
-					}
-				}
-			}
-		}
-	});
-var $elm$core$List$foldr = F3(
-	function (fn, acc, ls) {
-		return A4($elm$core$List$foldrHelper, fn, acc, 0, ls);
-	});
-var $elm$core$List$filter = F2(
-	function (isGood, list) {
-		return A3(
-			$elm$core$List$foldr,
-			F2(
-				function (x, xs) {
-					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
-				}),
-			_List_Nil,
-			list);
-	});
 var $elm$core$List$maybeCons = F3(
 	function (f, mx, xs) {
 		var _v0 = f(mx);
@@ -3025,7 +3229,6 @@ var $elm$core$List$length = function (xs) {
 };
 var $elm$core$String$length = _String_length;
 var $elm$core$String$lines = _String_lines;
-var $elm$core$Basics$neq = _Utils_notEqual;
 var $elm$core$String$split = F2(
 	function (sep, string) {
 		return _List_fromArray(
@@ -3387,7 +3590,6 @@ var $elm$core$Basics$max = F2(
 	function (x, y) {
 		return (_Utils_cmp(x, y) > 0) ? x : y;
 	});
-var $elm$core$Basics$mul = _Basics_mul;
 var $elm$core$Array$SubTree = function (a) {
 	return {$: 'SubTree', a: a};
 };
@@ -3414,10 +3616,6 @@ var $elm$core$Array$compressNodes = F2(
 			}
 		}
 	});
-var $elm$core$Tuple$first = function (_v0) {
-	var x = _v0.a;
-	return x;
-};
 var $elm$core$Array$treeFromBuilder = F2(
 	function (nodeList, nodeListSize) {
 		treeFromBuilder:
@@ -3509,20 +3707,6 @@ var $author$project$Item$ItemFilter = F2(
 	function (tags, bonds) {
 		return {bonds: bonds, tags: tags};
 	});
-var $elm$core$List$map = F2(
-	function (f, xs) {
-		return A3(
-			$elm$core$List$foldr,
-			F2(
-				function (x, acc) {
-					return A2(
-						$elm$core$List$cons,
-						f(x),
-						acc);
-				}),
-			_List_Nil,
-			xs);
-	});
 var $author$project$Item$listToItemFilter = function (item_list) {
 	var getTags = function (items) {
 		if (!items.b) {
@@ -3574,10 +3758,6 @@ var $author$project$TestItem$listToItemFilter = A2(
 			},
 			$author$project$Item$listToItemFilter(
 				$author$project$Item$toItemList($author$project$TestItem$testCsv)));
-	});
-var $author$project$Item$Item = F4(
-	function (name, tags, needs, offers) {
-		return {name: name, needs: needs, offers: offers, tags: tags};
 	});
 var $elm$core$List$any = F2(
 	function (isOkay, list) {
@@ -6324,10 +6504,6 @@ var $author$project$Test$Reporter$JUnit$formatFailure = function (_v0) {
 		return message;
 	}
 };
-var $elm$core$Tuple$second = function (_v0) {
-	var y = _v0.b;
-	return y;
-};
 var $elm$core$List$singleton = function (value) {
 	return _List_fromArray(
 		[value]);
@@ -7990,6 +8166,54 @@ var $author$project$Test$Runner$Node$run = F2(
 				});
 		}
 	});
+var $author$project$Scorer$scoreItem = F2(
+	function (item, item_list) {
+		return function (synergy_summary) {
+			return A3(
+				$elm$core$List$foldl,
+				$elm$core$Basics$add,
+				0,
+				A2(
+					$elm$core$List$map,
+					$elm$core$Tuple$second,
+					_Utils_ap(synergy_summary.needs, synergy_summary.offers)));
+		}(
+			A2($author$project$Scorer$getSynergySummary, item, item_list));
+	});
+var $author$project$TestScorer$scoreItem = A2(
+	$elm_explorations$test$Test$test,
+	'scoreItem should not synergize item with itself',
+	function (_v0) {
+		return A2(
+			$elm_explorations$test$Expect$equal,
+			(3 + 2) + 2,
+			A2($author$project$Scorer$scoreItem, $author$project$TestScorer$testFire, $author$project$TestScorer$testItemList));
+	});
+var $author$project$Scorer$sortBySynergy = F2(
+	function (target_list, reference_list) {
+		return $elm$core$List$reverse(
+			A2(
+				$elm$core$List$sortBy,
+				function (x) {
+					return A2($author$project$Scorer$scoreItem, x, reference_list);
+				},
+				target_list));
+	});
+var $author$project$TestScorer$sortBySynergy = A2(
+	$elm_explorations$test$Test$test,
+	'sortBySynergy sorts items in descending order by score margin against another list of items',
+	function (_v0) {
+		return A2(
+			$elm_explorations$test$Expect$equal,
+			_List_fromArray(
+				[$author$project$TestScorer$testFire, $author$project$TestScorer$testAir, $author$project$TestScorer$testWater]),
+			A2(
+				$author$project$Scorer$sortBySynergy,
+				_List_fromArray(
+					[$author$project$TestScorer$testFire, $author$project$TestScorer$testWater, $author$project$TestScorer$testAir]),
+				$author$project$TestScorer$testItemList));
+	});
+var $author$project$TestMain$testCsv = 'fire,reaction,-oxygen,-fuel,+heat,+smoke\nwater,fluid,-cool,+moisture,,\nair,fluid,+oxygen,,,\nearth,solid,-smoke,-moisture,-oxygen,+fuel';
 var $author$project$TestItem$toItemList = A2(
 	$elm_explorations$test$Test$test,
 	'item list should contain correct items',
@@ -8058,14 +8282,13 @@ var $author$project$TestItem$toItemList = A2(
 var $author$project$Test$Generated$Main$main = A2(
 	$author$project$Test$Runner$Node$run,
 	{
-		globs: _List_fromArray(
-			['tests/TestItem.elm']),
+		globs: _List_Nil,
 		paths: _List_fromArray(
-			['E:\\GitHub\\synergy_finder\\tests\\TestItem.elm']),
+			['E:\\GitHub\\synergy_finder\\tests\\TestItem.elm', 'E:\\GitHub\\synergy_finder\\tests\\TestMain.elm', 'E:\\GitHub\\synergy_finder\\tests\\TestScorer.elm']),
 		processes: 8,
 		report: $author$project$Test$Reporter$Reporter$ConsoleReport($author$project$Console$Text$Monochrome),
 		runs: 100,
-		seed: 183609930830771
+		seed: 387984126905477
 	},
 	_List_fromArray(
 		[
@@ -8078,12 +8301,31 @@ var $author$project$Test$Generated$Main$main = A2(
 					$author$project$Test$Runner$Node$check($author$project$TestItem$listToItemFilter),
 					$author$project$Test$Runner$Node$check($author$project$TestItem$getTagsFromList),
 					$author$project$Test$Runner$Node$check($author$project$TestItem$partitionByFilter)
+				])),
+			_Utils_Tuple2(
+			'TestMain',
+			_List_fromArray(
+				[
+					$author$project$Test$Runner$Node$check($author$project$TestMain$testCsv)
+				])),
+			_Utils_Tuple2(
+			'TestScorer',
+			_List_fromArray(
+				[
+					$author$project$Test$Runner$Node$check($author$project$TestScorer$testFire),
+					$author$project$Test$Runner$Node$check($author$project$TestScorer$testWater),
+					$author$project$Test$Runner$Node$check($author$project$TestScorer$testAir),
+					$author$project$Test$Runner$Node$check($author$project$TestScorer$testEarth),
+					$author$project$Test$Runner$Node$check($author$project$TestScorer$testItemList),
+					$author$project$Test$Runner$Node$check($author$project$TestScorer$sortBySynergy),
+					$author$project$Test$Runner$Node$check($author$project$TestScorer$scoreItem),
+					$author$project$Test$Runner$Node$check($author$project$TestScorer$getSynergySummary)
 				]))
 		]));
 _Platform_export({'Test':{'Generated':{'Main':{'init':$author$project$Test$Generated$Main$main($elm$json$Json$Decode$int)(0)}}}});}(this));
 return this.Elm;
 })({});
-var pipeFilename = "\\\\.\\pipe\\elm_test-20236-1";
+var pipeFilename = "\\\\.\\pipe\\elm_test-11572-1";
 var net = require('net'),
   client = net.createConnection(pipeFilename);
 
